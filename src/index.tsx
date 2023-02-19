@@ -8,20 +8,37 @@ import reportWebVitals from './reportWebVitals';
 // components
 import CssBaseline from '@mui/material/CssBaseline';
 
+// persist
+import { persistStore } from 'redux-persist';
+import { PersistGate } from 'redux-persist/integration/react';
+
 // theme
 import { ThemeProvider } from '@mui/material/styles';
 import { theme } from './theme';
 
+// utils
+import { getTicket } from './features/parking-garage/ParkingGarage.utils';
+
+declare global {
+    interface Window { getTicket: typeof getTicket }
+}
+
+window.getTicket = getTicket;
+
 const container = document.getElementById('root')!;
 const root = createRoot(container);
+
+const persistor = persistStore(store);
 
 root.render(
 	<React.StrictMode>
 		<Provider store={store}>
-			<ThemeProvider theme={theme}>
-				<CssBaseline />
-				<App />
-			</ThemeProvider>
+			<PersistGate loading={null} persistor={persistor}>
+				<ThemeProvider theme={theme}>
+					<CssBaseline />
+					<App />
+				</ThemeProvider>
+			</PersistGate>
 		</Provider>
 	</React.StrictMode>
 );

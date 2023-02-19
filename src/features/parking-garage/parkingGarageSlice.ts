@@ -1,11 +1,19 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+
+// types
 import { RootState } from '../../app/store';
+import { SetNonNullable } from 'type-fest';
 
 const PARKING_CAPACITY = 54;
 
+interface Ticket {
+	barCode: string;
+	dateOfIssuance: number;
+}
+
 export interface ParkingSpace {
 	spaceNumber: number;
-	ticket: string | null;
+	ticket: Ticket | null;
 }
 
 export interface ParkingGarageState {
@@ -27,13 +35,13 @@ export const ParkingGarageSlice = createSlice({
 	// The `reducers` field lets us define reducers and generate associated actions
 	reducers: {
 		// Use the PayloadAction type to declare the contents of `action.payload`
-		park: (state, action: PayloadAction<number>) => {
+		park: (state, action: PayloadAction<SetNonNullable<ParkingSpace, 'ticket'>>) => {
 			// Redux Toolkit allows us to write "mutating" logic in reducers. It
 			// doesn't actually mutate the state because it uses the Immer library,
 			// which detects changes to a "draft state" and produces a brand new
 			// immutable state based off those changes
-			const ticket = `ticket-${action.payload}`;
-			state.parkingSpaces[action.payload].ticket = ticket;
+			const { spaceNumber, ticket } = action.payload;
+			state.parkingSpaces[spaceNumber].ticket = ticket;
 		},
 		leave: (state, action: PayloadAction<number>) => {
 			state.parkingSpaces[action.payload].ticket = null;
