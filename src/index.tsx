@@ -16,15 +16,6 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { ThemeProvider } from '@mui/material/styles';
 import { theme } from './theme';
 
-// utils
-import { getTicket } from './features/parking-garage/ParkingGarage.utils';
-
-declare global {
-    interface Window { getTicket: typeof getTicket }
-}
-
-window.getTicket = getTicket;
-
 const container = document.getElementById('root')!;
 const root = createRoot(container);
 

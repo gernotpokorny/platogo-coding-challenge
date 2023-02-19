@@ -4,6 +4,7 @@ import { combineReducers } from 'redux';
 // persist
 import { persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
+import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
 
 // reducer
 import parkingGarageReducer from '../features/parking-garage/parkingGarageSlice';
@@ -16,9 +17,10 @@ const persistConfig = {
 	key: 'root',
 	version: 1,
 	storage,
+	stateReconciler: autoMergeLevel2,
 }
 
-const persistedReducer = persistReducer(persistConfig, rootReducer)
+const persistedReducer = persistReducer<ReturnType<typeof rootReducer>>(persistConfig, rootReducer)
 
 export const store = configureStore({
 	reducer: persistedReducer,
