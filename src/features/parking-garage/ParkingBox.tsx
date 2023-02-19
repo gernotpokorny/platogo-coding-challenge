@@ -1,6 +1,9 @@
 // actions
 import { park, leave } from './parkingGarageSlice';
 
+// constants
+import { PaymentMethod } from './parkingGarageSlice';
+
 // hooks
 import { useAppDispatch } from '../../app/hooks';
 
@@ -21,7 +24,7 @@ export const ParkingBox: React.FC<ParkingBoxProps> = ({ parkingSpace }) => {
 	const togglePlace = async () => {
 		try {
 			ticket
-				? dispatch(leave(spaceNumber))
+				? dispatch(leave(spaceNumber, PaymentMethod.CASH))
 				: dispatch(park(spaceNumber));
 			console.log(ticket ? 'Goodbye!' : 'Welcome!');
 		} catch (error) {

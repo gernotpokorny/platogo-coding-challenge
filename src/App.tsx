@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { bindActionCreators } from 'redux';
 
 // actions
-import { getTicket, calculatePrice } from './features/parking-garage/parkingGarageSlice';
+import { getTicket, calculatePrice, payTicket } from './features/parking-garage/parkingGarageSlice';
 
 // components
 import { ParkingGarage } from './features/parking-garage/ParkingGarage';
@@ -14,6 +14,7 @@ declare global {
 	interface Window {
 		getTicket: typeof getTicket;
 		calculatePrice: typeof calculatePrice;
+		payTicket: typeof payTicket;
 	}
 }
 
@@ -30,8 +31,14 @@ function App() {
 		[dispatch]
 	);
 
+	const boundPayTicket = useMemo(
+		() => bindActionCreators(payTicket, dispatch),
+		[dispatch]
+	);
+
 	window.getTicket = boundGetTicket;
 	window.calculatePrice = boundCalculatePrice;
+	window.payTicket = boundPayTicket;
 
 	return (
 		<ParkingGarage />
