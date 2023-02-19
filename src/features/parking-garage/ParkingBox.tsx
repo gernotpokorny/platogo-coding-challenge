@@ -1,7 +1,8 @@
-import { useDispatch } from 'react-redux';
-
 // actions
 import { park, leave } from './parkingGarageSlice';
+
+// hooks
+import { useAppDispatch } from '../../app/hooks';
 
 // styles
 import { ParkingBoxContainer } from './ParkingGarage.style';
@@ -9,29 +10,19 @@ import { ParkingBoxContainer } from './ParkingGarage.style';
 // types
 import { ParkingSpace } from './parkingGarageSlice';
 
-// utils
-import { getTicket } from './ParkingGarage.utils';
-
 interface ParkingBoxProps {
 	parkingSpace: ParkingSpace
 }
 
 export const ParkingBox: React.FC<ParkingBoxProps> = ({ parkingSpace }) => {
 	const { spaceNumber, ticket } = parkingSpace;
-	const dispatch = useDispatch();
+	const dispatch = useAppDispatch();
 
 	const togglePlace = async () => {
 		try {
-			const barCode = getTicket();
 			ticket
 				? dispatch(leave(spaceNumber))
-				: dispatch(park({
-					spaceNumber,
-					ticket: {
-						barCode,
-						dateOfIssuance: Date.now(),
-					},
-				}));
+				: dispatch(park(spaceNumber));
 			console.log(ticket ? 'Goodbye!' : 'Welcome!');
 		} catch (error) {
 			console.log(error);
