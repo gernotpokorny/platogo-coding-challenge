@@ -11,3 +11,15 @@ export const calculateTicketPrice = (issueDate: Date, paymentDate: Date) => {
 	const HOURLY_RATE = 2;
 	return billedHours * HOURLY_RATE;
 };
+
+export const getFormattedPaymentDate = (paymentDate: Date) => {
+	return paymentDate.toLocaleDateString('de-DE', {
+		weekday: 'long',
+		year: 'numeric',
+		month: 'long',
+		day: '2-digit',
+		hour: '2-digit',
+		minute: '2-digit',
+		second: '2-digit',
+	})
+};

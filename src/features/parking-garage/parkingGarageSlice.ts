@@ -5,15 +5,27 @@ import { RootState, AppThunk } from '../../app/store';
 import { SetNonNullable } from 'type-fest';
 
 // utils
-import { generateBarCode, calculateTicketPrice } from './ParkingGarage.utils';
+import { generateBarCode, calculateTicketPrice, getFormattedPaymentDate } from './ParkingGarage.utils';
 
 const PARKING_CAPACITY = 54;
 
+export enum PaymentMethod {
+	CREDIT_CARD = 'CREDIT_CARD',
+	DEBIT_CARD = 'DEBIT_CARD',
+	CASH = 'CASH',
+}
+
 type BarCode = string;
+
+interface Payment {
+	paymentDate: number;
+	paymentMethod: PaymentMethod;
+}
 
 interface Ticket {
 	barCode: BarCode;
 	dateOfIssuance: number;
+	payment?: Payment;
 }
 
 export interface ParkingSpace {
@@ -55,13 +67,14 @@ export const ParkingGarageSlice = createSlice({
 		issueNewTicket: (state, action: PayloadAction<Ticket>) => {
 			state.currentlyIssuedTickets[action.payload.barCode] = action.payload;
 		},
-		payTicket: (state, action: PayloadAction<Ticket>) => {
-			delete state.currentlyIssuedTickets[action.payload.barCode];
+		markTicketAsPayed: (state, action: PayloadAction<Ticket>) => {
+			const ticket = action.payload;
+			state.currentlyIssuedTickets[ticket.barCode] = ticket;
 		},
 	},
 });
 
-const { occupyParkingBox, leaveParkingBox, issueNewTicket, payTicket } = ParkingGarageSlice.actions;
+const { occupyParkingBox, leaveParkingBox, issueNewTicket, markTicketAsPayed } = ParkingGarageSlice.actions;
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
@@ -104,27 +117,70 @@ export const park = (spaceNumber: number): AppThunk =>
 		}
 	};
 
-export const leave = (spaceNumber: number): AppThunk =>
+export const payTicket = (barCode: BarCode, paymentMethod: PaymentMethod): AppThunk<boolean> =>
+	(dispatch, getState) => {
+		const ticket = selectTicketWithBarCode(barCode)(getState());
+		if (ticket) {
+			dispatch(markTicketAsPayed({
+				...ticket,
+				payment: {
+					paymentMethod,
+					paymentDate: Date.now(),
+				},
+			}));
+			return true;
+		}
+		return false;
+	};
+
+
+export const leave = (spaceNumber: number, paymentMethod: PaymentMethod): AppThunk =>
 	(dispatch, getState) => {
 		const ticket = selectTicketOfParkingBox(spaceNumber)(getState());
 		if (ticket) {
 			const ticketPrice = dispatch(calculatePrice(ticket.barCode));
 			console.log('ticketPrice', ticketPrice);
-			dispatch(leaveParkingBox(spaceNumber));
+			const isTicketPayed = dispatch(payTicket(ticket.barCode, paymentMethod));
+			console.log('isTicketPayed', isTicketPayed);
+			if (isTicketPayed) {
+				dispatch(leaveParkingBox(spaceNumber));
+			}
 		}
 		else {
 			throw new Error('Parking slot is occupied, but has no ticket!');
 		}
 	};
 
-export const calculatePrice = (barCode: BarCode): AppThunk<number | void> =>
+type PaymentReceipt = string[];
+
+interface CalculatePricePaidTicketReturnValue {
+	ticketPrice: number;
+	paymentReceipt: PaymentReceipt;
+}
+
+export const calculatePrice = (barCode: BarCode): AppThunk<number | CalculatePricePaidTicketReturnValue | void> =>
 	(dispatch, getState) => {
 		const ticket = selectTicketWithBarCode(barCode)(getState());
 		if (ticket) {
-			const issueDate = new Date(ticket.dateOfIssuance);
-			const paymentDate = new Date();
-			const ticketPrice = calculateTicketPrice(issueDate, paymentDate);
-			return ticketPrice;
+			if (ticket.payment) {
+				const issueDate = new Date(ticket.dateOfIssuance);
+				const paymentDate = new Date(ticket.payment.paymentDate);
+				const ticketPrice = calculateTicketPrice(issueDate, paymentDate);
+				return {
+					ticketPrice: 0,
+					paymentReceipt: [
+						`Payed: ${ticketPrice}`,
+						`Payment date: ${getFormattedPaymentDate(new Date(ticket.payment.paymentDate))}`,
+						`Payment method: : ${ticket.payment.paymentMethod}`,
+					],
+				};
+			}
+			else {
+				const issueDate = new Date(ticket.dateOfIssuance);
+				const paymentDate = new Date();
+				const ticketPrice = calculateTicketPrice(issueDate, paymentDate);
+				return ticketPrice;
+			}
 		}
 		else {
 			throw new Error('Ticket cannot be found!');
