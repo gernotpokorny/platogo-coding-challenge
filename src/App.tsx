@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { bindActionCreators } from 'redux';
 
 // actions
-import { getTicketAsync, calculatePrice, payTicketAsync } from './features/parking-garage/parkingGarageSlice';
+import { getTicketAsync, calculatePrice, payTicketAsync, getTicketState } from './features/parking-garage/parkingGarageSlice';
 
 // components
 import { ParkingGarage } from './features/parking-garage/ParkingGarage';
@@ -18,6 +18,7 @@ declare global {
 		getTicket: () => void;
 		calculatePrice: typeof calculatePrice;
 		payTicket: (barCode: BarCode, paymentMethod: PaymentMethod) => void;
+		getTicketState: typeof getTicketState;
 	}
 }
 
@@ -38,9 +39,15 @@ function App() {
 		await dispatch(payTicketAsync({ barCode, paymentMethod }));
 	};
 
+	const boundGetTicketState = useMemo(
+		() => bindActionCreators(getTicketState, dispatch),
+		[dispatch]
+	);
+
 	window.getTicket = getTicket;
 	window.calculatePrice = boundCalculatePrice;
 	window.payTicket = payTicket;
+	window.getTicketState = boundGetTicketState;
 
 	return (
 		<ParkingGarage />

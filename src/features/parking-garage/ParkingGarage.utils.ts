@@ -1,3 +1,9 @@
+// constants
+import { TicketState } from './parkingGarageSlice';
+
+// types
+import { Ticket } from './parkingGarageSlice';
+
 // utils
 import { generateRandomNumber } from '../../shared/utils/randomnessUtils';
 
@@ -22,4 +28,15 @@ export const getFormattedPaymentDate = (paymentDate: Date) => {
 		minute: '2-digit',
 		second: '2-digit',
 	})
+};
+
+export const calculateTicketState = (ticket: Ticket, currentDate: Date) => {
+	if (ticket.payment) {
+		const paymentDate = new Date(ticket.payment.paymentDate);
+		const minutes = Math.abs(currentDate.getTime() - paymentDate.getTime()) / 60000 // Dividing by 60000 converts the milliseconds difference into minutes.
+		return minutes >= 15 ? TicketState.UNPAID : TicketState.PAID;
+	}
+	else {
+		return TicketState.UNPAID;
+	}
 };
