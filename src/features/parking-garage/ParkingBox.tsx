@@ -20,20 +20,18 @@ interface ParkingBoxProps {
 }
 
 export const ParkingBox: React.FC<ParkingBoxProps> = ({ parkingSpace }) => {
-	const { spaceNumber, ticket } = parkingSpace;
+	const { spaceNumber, barCode } = parkingSpace;
 	const dispatch = useAppDispatch();
 	const buttonRef = useRef<HTMLButtonElement>(null);
 
 	const togglePlace = async () => {
 		buttonRef.current?.setAttribute('disabled', 'disabled')
 		try {
-			if (ticket) {
-				await dispatch(leaveAsync({ spaceNumber, paymentMethod: PaymentMethod.CASH })).unwrap();
-				console.log('Goodbye!');
+			if (barCode) {
+				await dispatch(leaveAsync({ spaceNumber, paymentMethod: PaymentMethod.CASH, barCode })).unwrap();		
 			}
 			else {
 				await dispatch(parkAsync({ spaceNumber })).unwrap();
-				console.log('Welcome!');
 			}
 		} catch (error) {
 			console.log(error);
@@ -43,7 +41,7 @@ export const ParkingBox: React.FC<ParkingBoxProps> = ({ parkingSpace }) => {
 
 	return (
 		<ParkingBoxContainer
-			className={ticket ? 'occupied' : 'free'}
+			className={barCode ? 'occupied' : 'free'}
 			onClick={togglePlace}
 			ref={buttonRef}
 			disableRipple
