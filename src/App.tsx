@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { bindActionCreators } from 'redux';
 
 // actions
-import { getTicket, calculatePrice, payTicket } from './features/parking-garage/parkingGarageSlice';
+import { getTicketAsync, calculatePrice, payTicketAsync } from './features/parking-garage/parkingGarageSlice';
 
 // components
 import { ParkingGarage } from './features/parking-garage/ParkingGarage';
@@ -10,35 +10,37 @@ import { ParkingGarage } from './features/parking-garage/ParkingGarage';
 // hooks
 import { useAppDispatch } from './app/hooks';
 
+// types
+import { BarCode, PaymentMethod } from './features/parking-garage/parkingGarageSlice';
+
 declare global {
 	interface Window {
-		getTicket: typeof getTicket;
+		getTicket: () => void;
 		calculatePrice: typeof calculatePrice;
-		payTicket: typeof payTicket;
+		payTicket: (barCode: BarCode, paymentMethod: PaymentMethod) => void;
 	}
 }
 
 function App() {
 	const dispatch = useAppDispatch();
 
-	const boundGetTicket = useMemo(
-		() => bindActionCreators(getTicket, dispatch),
-		[dispatch]
-	);
+	const getTicket = async () => {
+		const ticket = await dispatch(getTicketAsync()).unwrap();
+		return ticket.barCode;
+	};
 
 	const boundCalculatePrice = useMemo(
 		() => bindActionCreators(calculatePrice, dispatch),
 		[dispatch]
 	);
 
-	const boundPayTicket = useMemo(
-		() => bindActionCreators(payTicket, dispatch),
-		[dispatch]
-	);
+	const payTicket = async (barCode: BarCode, paymentMethod: PaymentMethod) => {
+		await dispatch(payTicketAsync({ barCode, paymentMethod }));
+	};
 
-	window.getTicket = boundGetTicket;
+	window.getTicket = getTicket;
 	window.calculatePrice = boundCalculatePrice;
-	window.payTicket = boundPayTicket;
+	window.payTicket = payTicket;
 
 	return (
 		<ParkingGarage />

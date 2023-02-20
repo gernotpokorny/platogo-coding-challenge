@@ -1,7 +1,7 @@
 import { styled } from '@mui/material';
 
 // Components
-import { Box } from '@mui/material';
+import { Box, Button } from '@mui/material';
 
 interface InnerRowContainerProps {
 	readonly first?: boolean;
@@ -25,31 +25,33 @@ export const ParkingGrid = styled(Box)(({ theme }) => ({
 export const OuterRowContainer = styled(Box)(({ theme }) => ({
 	display: 'flex',
 	flexWrap: 'nowrap',
-	'& > div': {
+	'& > button': {
 		height: '80px',
 		flex: 1,
 	},
-	'& > div:not(:last-of-type)': {
+	'& > button:not(:last-of-type)': {
 		borderRight: '1px solid black',
 	},
 }));
 
 export const InnerRowContainer = (
 	styled(OuterRowContainer, { shouldForwardProp: (prop) => prop !== 'first' })<InnerRowContainerProps>(({ theme, first }) => ({
-		'& > div': {
+		'& > button': {
 			borderBottom: first ? '1px solid black' : 'none',
 		},
-		'& > div:first-of-type,  & > div:nth-of-type(14)': {
+		'& > button:first-of-type,  & > button:nth-of-type(14)': {
 			borderRight: 'none',
 		},
-		'& > div:first-of-type,  & > div:nth-of-type(2),  & > div:nth-of-type(14),  & > div:nth-of-type(15)': {
+		'& > button:nth-of-type(3)': {
+			borderLeft: '1px solid black',
+		},
+		'& > button:first-of-type,  & > button:nth-of-type(2),  & > button:nth-of-type(14),  & > button:nth-of-type(15)': {
 			borderBottom: 'none',
 		},
 	}))
 );
 
-export const ParkingBoxContainer = styled(Box)(({ theme }) => ({
-	display: 'flex',
+export const ParkingBoxContainer = styled(Button)(({ theme }) => ({
 	justifyContent: 'center',
 	alignItems: 'center',
 	fontSize: '16px',
@@ -60,4 +62,8 @@ export const ParkingBoxContainer = styled(Box)(({ theme }) => ({
 	'&.occupied': {
 		background: theme.status.occupiedSpot,
 	},
+	color: 'inherit',
+	borderRadius: 0,
+	padding: 0,
+	minWidth: '0',
 }));

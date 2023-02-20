@@ -22,7 +22,7 @@ export const InnerRow: React.FC<InnerRowProps> = ({
 }) => {
 	const parkingSpaces = useSelector(selectParkingSpaces);
 
-	const blank = [0, 1].map((idx) => <div key={idx} />);
+	const blank = [0, 1].map((idx) => <button key={idx} style={{ visibility: 'hidden' }} />);
 
 	return (
 		<InnerRowContainer first={first}>
