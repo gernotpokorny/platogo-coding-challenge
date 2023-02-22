@@ -105,6 +105,8 @@ export const selectTicketWithBarCode = (barCode: BarCode) => (state: RootState) 
 	state.parkingGarage.currentlyIssuedTickets[barCode]
 		? state.parkingGarage.currentlyIssuedTickets[barCode]
 		: null;
+export const selectAmountOfFreeParkingSpaces = (state: RootState) =>
+	state.parkingGarage.parkingSpaces.length - Object.keys(state.parkingGarage.currentlyIssuedTickets).length;
 
 export const getTicketAsync = createAsyncThunk<
 	Ticket,
@@ -113,6 +115,10 @@ export const getTicketAsync = createAsyncThunk<
 >(
 	'parkingGarage/getTicket',
 	async (_, { getState, dispatch }) => {
+		const amountOfFreeParkingSpaces = selectAmountOfFreeParkingSpaces(getState());
+		if (amountOfFreeParkingSpaces === 0) {
+			throw new Error('The parking garage is already full, there are no more parking spaces available.');
+		}
 		const response = await getTicket();
 		if (response.ok) {
 			return response.ticket;
@@ -278,6 +284,12 @@ export const getTicketState = (barCode: BarCode): AppThunk<TicketState> =>
 		else {
 			throw new Error('Ticket cannot be found!');
 		}
+	};
+
+export const getFreeSpaces = (barCode: BarCode): AppThunk<number> =>
+	(dispatch, getState) => {
+		const amountOfFreeParkingSpaces = selectAmountOfFreeParkingSpaces(getState());
+		return amountOfFreeParkingSpaces;
 	};
 
 export default ParkingGarageSlice.reducer;
