@@ -8,6 +8,7 @@ interface InnerRowContainerProps {
 }
 
 export const Container = styled(Box)(({ theme }) => ({
+	position: 'relative',
 	margin: '64px 128px',
 }));
 
@@ -66,4 +67,22 @@ export const ParkingBoxContainer = styled(Button)(({ theme }) => ({
 	borderRadius: 0,
 	padding: 0,
 	minWidth: '0',
+}));
+
+export const Entry = styled(Box)(({ theme }) => ({
+	position: 'absolute',
+	left: 0,
+	top: '95px',
+	width: '1px',
+	height: '50px',
+	backgroundColor: theme.palette.background.default,
+}));
+
+export const FreeParkingSpacesSignWrapper = styled(
+	Box,
+	{ shouldForwardProp: (prop) => prop !== 'amount' }
+)(({ theme }) => ({
+	position: 'absolute',
+	left: '-40px',
+	top: '145px',
 }));
