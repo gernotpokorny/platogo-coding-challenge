@@ -44,7 +44,6 @@ export interface ParkingSpace {
 export interface ParkingGarageState {
 	parkingSpaces: ParkingSpace[];
 	currentlyIssuedTickets: Record<BarCode, Ticket>;
-	status: 'idle' | 'loading' | 'failed';
 }
 
 export const initialState: ParkingGarageState = {
@@ -53,7 +52,6 @@ export const initialState: ParkingGarageState = {
 		barCode: null,
 	})),
 	currentlyIssuedTickets: {},
-	status: 'idle',
 };
 
 export const ParkingGarageSlice = createSlice({
@@ -67,29 +65,24 @@ export const ParkingGarageSlice = createSlice({
 		builder
 			.addCase(getTicketAsync.fulfilled, (state, action) => {
 				const ticket = action.payload;
-				state.status = 'idle';
 				state.currentlyIssuedTickets[ticket.barCode] = ticket;
 			})
 			.addCase(payTicketAsync.fulfilled, (state, action) => {
 				const ticket = action.payload;
-				state.status = 'idle';
 				state.currentlyIssuedTickets[ticket.barCode] = ticket;
 			})
 			.addCase(parkAsync.fulfilled, (state, action) => {
 				const { spaceNumber, barCode } = action.payload;
-				state.status = 'idle';
 				state.parkingSpaces[spaceNumber].barCode = barCode;
 			})
 			.addCase(leaveAsync.fulfilled, (state, action) => {
 				const { spaceNumber, ticketState } = action.payload;
-				state.status = 'idle';
 				if (ticketState === TicketState.PAID) {
 					state.parkingSpaces[spaceNumber].barCode = null;
 				}
 			})
 			.addCase(gateCheckoutAsync.fulfilled, (state, action) => {
 				const { ticketState, ticket } = action.payload;
-				state.status = 'idle';
 				if (ticketState === TicketState.PAID) {
 					delete state.currentlyIssuedTickets[ticket.barCode];
 				}
