@@ -2,7 +2,13 @@ import { useMemo } from 'react';
 import { bindActionCreators } from 'redux';
 
 // actions
-import { getTicketAsync, calculatePrice, payTicketAsync, getTicketState, getFreeSpaces } from './features/parking-garage/parkingGarageSlice';
+import {
+	getTicketAsync,
+	calculatePrice,
+	payTicketAsync,
+	getTicketState,
+	getFreeSpaces,
+} from './features/parking-garage/parkingGarageSlice';
 
 // components
 import { ParkingGarage } from './features/parking-garage/ParkingGarage';
