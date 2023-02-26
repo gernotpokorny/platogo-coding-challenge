@@ -4,7 +4,7 @@ import { PaymentMethod, TicketState } from './parkingGarageSlice';
 // utils
 import { generateBarCode, calculateTicketPrice, calculateTicketState } from './ParkingGarage.utils';
 
-test('getTicket()', () => {
+test('generateBarCode()', () => {
 	const ticket1 = generateBarCode();
 	const ticket2 = generateBarCode();
 	expect(ticket1).not.toBe(ticket2);
