@@ -10,7 +10,11 @@ import { SetNonNullable } from 'type-fest';
 // utils
 import { calculateTicketPrice, getFormattedPaymentDate, calculateTicketState } from './ParkingGarage.utils';
 
-const PARKING_CAPACITY = 54;
+export const PARKING_CAPACITY = 54;
+
+export enum ErrorCode {
+	FULL_PARKING_GARAGE = 'The parking garage is already full, there are no more parking spaces available.'
+}
 
 export enum PaymentMethod {
 	CREDIT_CARD = 'CREDIT_CARD',
@@ -110,7 +114,7 @@ export const getTicketAsync = createAsyncThunk<
 	async (_, { getState, dispatch }) => {
 		const amountOfFreeParkingSpaces = selectAmountOfFreeParkingSpaces(getState());
 		if (amountOfFreeParkingSpaces === 0) {
-			throw new Error('The parking garage is already full, there are no more parking spaces available.');
+			throw new Error(ErrorCode.FULL_PARKING_GARAGE);
 		}
 		const response = await getTicket();
 		if (response.ok) {
@@ -181,7 +185,7 @@ export const payTicketAsync = createAsyncThunk<
 					...ticket,
 					payment: {
 						paymentMethod,
-						paymentDate: Date.now(),
+						paymentDate: response.paymentDate,
 					},
 				}
 			}
@@ -227,7 +231,7 @@ export const leaveAsync = createAsyncThunk<
 
 type PaymentReceipt = string[];
 
-interface CalculatePricePaidTicketReturnValue {
+export interface CalculatePricePaidTicketReturnValue {
 	ticketPrice: number;
 	paymentReceipt: PaymentReceipt;
 }
@@ -251,7 +255,7 @@ export const calculatePrice = (barCode: BarCode): AppThunk<number | CalculatePri
 			}
 			else {
 				const issueDate = new Date(ticket.dateOfIssuance);
-				const paymentDate = new Date();
+				const paymentDate = new Date(Date.now()); // Date.now() gets mocked within the test!
 				const ticketPrice = calculateTicketPrice(issueDate, paymentDate);
 				return ticketPrice;
 			}
@@ -266,7 +270,7 @@ export const getTicketState = (barCode: BarCode): AppThunk<TicketState> =>
 		const ticket = selectTicketWithBarCode(barCode)(getState());
 		if (ticket) {
 			if (ticket.payment) {
-				const currentDate = new Date();
+				const currentDate = new Date(Date.now()); // Date.now() gets mocked within the test!
 				const ticketState = calculateTicketState(ticket, currentDate);
 				return ticketState;
 			}

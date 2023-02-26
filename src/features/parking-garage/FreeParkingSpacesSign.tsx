@@ -7,6 +7,6 @@ interface FreeParkingSpacesSignProps {
 
 export const FreeParkingSpacesSign: React.FC<FreeParkingSpacesSignProps> = ({ amountOfFreeParkingSpaces }) => {
 	return (
-		<DisplayBoard>{amountOfFreeParkingSpaces}</DisplayBoard>
+		<DisplayBoard data-testid='free-spaces-display-board'>{amountOfFreeParkingSpaces}</DisplayBoard>
 	);
 }

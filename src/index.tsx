@@ -1,11 +1,11 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
-import { store } from './app/store';
-import App from './App';
+import { setupStore } from './app/store';
 import reportWebVitals from './reportWebVitals';
 
 // components
+import App from './App';
 import CssBaseline from '@mui/material/CssBaseline';
 
 // persist
@@ -19,6 +19,7 @@ import { theme } from './theme';
 const container = document.getElementById('root')!;
 const root = createRoot(container);
 
+const store = setupStore();
 const persistor = persistStore(store);
 
 root.render(
