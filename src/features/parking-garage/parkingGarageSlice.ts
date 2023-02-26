@@ -279,7 +279,7 @@ export const getTicketState = (barCode: BarCode): AppThunk<TicketState> =>
 		}
 	};
 
-export const getFreeSpaces = (barCode: BarCode): AppThunk<number> =>
+export const getFreeSpaces = (): AppThunk<number> =>
 	(dispatch, getState) => {
 		const amountOfFreeParkingSpaces = selectAmountOfFreeParkingSpaces(getState());
 		return amountOfFreeParkingSpaces;
