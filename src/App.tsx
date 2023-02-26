@@ -21,7 +21,7 @@ import { BarCode, PaymentMethod } from './features/parking-garage/parkingGarageS
 
 declare global {
 	interface Window {
-		getTicket: () => void;
+		getTicket: () => Promise<string>;
 		calculatePrice: typeof calculatePrice;
 		payTicket: (barCode: BarCode, paymentMethod: PaymentMethod) => void;
 		getTicketState: typeof getTicketState;
