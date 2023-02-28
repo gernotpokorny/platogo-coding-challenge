@@ -74,16 +74,16 @@ export const Entry = styled(Box)(({ theme }) => ({
 	left: 0,
 	top: '95px',
 	width: '1px',
-	height: '50px',
+	height: '71px',
 	backgroundColor: theme.palette.background.default,
 }));
 
 export const Exit = styled(Box)(({ theme }) => ({
 	position: 'absolute',
 	left: 0,
-	top: '375px',
+	top: '354px',
 	width: '1px',
-	height: '50px',
+	height: '71px',
 	backgroundColor: theme.palette.background.default,
 }));
 
@@ -93,5 +93,5 @@ export const FreeParkingSpacesSignWrapper = styled(
 )(({ theme }) => ({
 	position: 'absolute',
 	left: '-40px',
-	top: '145px',
+	top: '166px',
 }));
