@@ -95,7 +95,7 @@ test('calculateTicketState() 15min 01 seconds passed', () => {
 		{
 			barCode,
 			dateOfIssuance: dateOfIssuance.getTime(),
-			payment: [
+			payments: [
 				{
 					paymentDate: paymentDate.getTime(),
 					paymentMethod: PaymentMethod.CREDIT_CARD,
@@ -115,7 +115,7 @@ test('calculateTicketState() 15 min 00 seconds passed', () => {
 		{
 			barCode,
 			dateOfIssuance: dateOfIssuance.getTime(),
-			payment: [
+			payments: [
 				{
 					paymentDate: paymentDate.getTime(),
 					paymentMethod: PaymentMethod.CREDIT_CARD,
