@@ -72,8 +72,15 @@ export const ParkingGarageSlice = createSlice({
 				state.currentlyIssuedTickets[ticket.barCode] = ticket;
 			})
 			.addCase(payTicketAsync.fulfilled, (state, action) => {
-				const ticket = action.payload;
-				state.currentlyIssuedTickets[ticket.barCode] = ticket;
+				const { payment, barCode } = action.payload;
+				const ticket = state.currentlyIssuedTickets[barCode];
+				state.currentlyIssuedTickets[barCode] = {
+					...ticket,
+					payment: [
+						...(ticket.payment || []),
+						payment,
+					],
+				};
 			})
 			.addCase(parkAsync.fulfilled, (state, action) => {
 				const { spaceNumber, barCode } = action.payload;
@@ -171,7 +178,7 @@ export const gateCheckoutAsync = createAsyncThunk<
 );
 
 export const payTicketAsync = createAsyncThunk<
-	Ticket,
+	{ payment: Payment, barCode: BarCode },
 	{ barCode: BarCode; paymentMethod: PaymentMethod },
 	{ state: RootState }
 >(
@@ -182,14 +189,11 @@ export const payTicketAsync = createAsyncThunk<
 			const response = await payTicket(ticket, paymentMethod);
 			if (response.ok) {
 				return {
-					...ticket,
-					payment: [
-						...(ticket.payment || []),
-						{
-							paymentMethod,
-							paymentDate: response.paymentDate,
-						},
-					],
+					payment: {
+						paymentMethod,
+						paymentDate: response.paymentDate,
+					},
+					barCode,
 				}
 			}
 			else {
