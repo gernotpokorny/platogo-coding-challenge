@@ -9,7 +9,7 @@ import { FreeParkingSpacesSign } from './FreeParkingSpacesSign';
 import { selectAmountOfFreeParkingSpaces } from './parkingGarageSlice';
 
 // styles
-import { Container, ParkingGrid, Message, Entry, FreeParkingSpacesSignWrapper } from './ParkingGarage.style';
+import { Container, ParkingGrid, Message, Entry, Exit, FreeParkingSpacesSignWrapper } from './ParkingGarage.style';
 
 export const ParkingGarage = () => {
 	const amountOfFreeParkingSpaces = useSelector(selectAmountOfFreeParkingSpaces);
@@ -28,6 +28,7 @@ export const ParkingGarage = () => {
 				<div />
 				<OuterRow start={38} end={54} />
 			</ParkingGrid>
+			<Exit />
 			<Message>Please click on a parking place to park or leave.</Message>
 		</Container>
 	);

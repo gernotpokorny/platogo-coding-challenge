@@ -78,6 +78,15 @@ export const Entry = styled(Box)(({ theme }) => ({
 	backgroundColor: theme.palette.background.default,
 }));
 
+export const Exit = styled(Box)(({ theme }) => ({
+	position: 'absolute',
+	left: 0,
+	top: '375px',
+	width: '1px',
+	height: '50px',
+	backgroundColor: theme.palette.background.default,
+}));
+
 export const FreeParkingSpacesSignWrapper = styled(
 	Box,
 	{ shouldForwardProp: (prop) => prop !== 'amount' }
