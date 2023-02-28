@@ -37,7 +37,7 @@ interface Payment {
 export interface Ticket {
 	barCode: BarCode;
 	dateOfIssuance: number;
-	payment?: Payment;
+	payment?: Payment[];
 }
 
 export interface ParkingSpace {
@@ -183,10 +183,13 @@ export const payTicketAsync = createAsyncThunk<
 			if (response.ok) {
 				return {
 					...ticket,
-					payment: {
-						paymentMethod,
-						paymentDate: response.paymentDate,
-					},
+					payment: [
+						...(ticket.payment || []),
+						{
+							paymentMethod,
+							paymentDate: response.paymentDate,
+						},
+					],
 				}
 			}
 			else {
@@ -240,24 +243,53 @@ export const calculatePrice = (barCode: BarCode): AppThunk<number | CalculatePri
 	(dispatch, getState) => {
 		const ticket = selectTicketWithBarCode(barCode)(getState());
 		if (ticket) {
-			if (ticket.payment) {
-				const issueDate = new Date(ticket.dateOfIssuance);
-				const paymentDate = new Date(ticket.payment.paymentDate);
-				const ticketPrice = calculateTicketPrice(issueDate, paymentDate);
-				return {
-					ticketPrice: 0,
-					paymentReceipt: [
-						`Payed: ${ticketPrice}€`,
-						`Payment date: ${getFormattedPaymentDate(new Date(ticket.payment.paymentDate))}`,
-						`Payment method: ${ticket.payment.paymentMethod}`,
-					],
-				};
+			const ticketState = dispatch(getTicketState(ticket.barCode));
+			if (ticket.payment && ticket.payment.length > 0 && ticketState === TicketState.PAID) {
+				if (ticket.payment.length === 1) {
+					const issueDate = new Date(ticket.dateOfIssuance);
+					const currentPayment = ticket.payment[ticket.payment.length - 1];
+					const paymentDate = new Date(currentPayment.paymentDate);
+					const ticketPrice = calculateTicketPrice(issueDate, paymentDate);
+					return {
+						ticketPrice: 0,
+						paymentReceipt: [
+							`Payed: ${ticketPrice}€`,
+							`Payment date: ${getFormattedPaymentDate(paymentDate)}`,
+							`Payment method: ${currentPayment.paymentMethod}`,
+						],
+					};
+				}
+				else {
+					const penultimatePaymentDate = new Date(ticket.payment[ticket.payment.length - 2].paymentDate);
+					const currentPayment = ticket.payment[ticket.payment.length - 1];
+					const paymentDate = new Date(currentPayment.paymentDate);
+					const ticketPrice = calculateTicketPrice(penultimatePaymentDate, paymentDate);
+					return {
+						ticketPrice: 0,
+						paymentReceipt: [
+							`Payed: ${ticketPrice}€`,
+							`Payment date: ${getFormattedPaymentDate(paymentDate)}`,
+							`Payment method: ${currentPayment.paymentMethod}`,
+						],
+					};
+				}
 			}
 			else {
-				const issueDate = new Date(ticket.dateOfIssuance);
-				const paymentDate = new Date(Date.now()); // Date.now() gets mocked within the test!
-				const ticketPrice = calculateTicketPrice(issueDate, paymentDate);
-				return ticketPrice;
+				if (ticket.payment && ticket.payment.length > 0) {
+					const lastPayment = ticket.payment[ticket.payment.length - 1];
+					const paymentDate = new Date(Date.now()); // Date.now() gets mocked within the test!
+					const ticketPrice = calculateTicketPrice(
+						new Date(lastPayment.paymentDate),
+						paymentDate
+					);
+					return ticketPrice;
+				}
+				else {
+					const issueDate = new Date(ticket.dateOfIssuance);
+					const paymentDate = new Date(Date.now()); // Date.now() gets mocked within the test!
+					const ticketPrice = calculateTicketPrice(issueDate, paymentDate);
+					return ticketPrice;
+				}
 			}
 		}
 		else {
@@ -269,7 +301,7 @@ export const getTicketState = (barCode: BarCode): AppThunk<TicketState> =>
 	(dispatch, getState) => {
 		const ticket = selectTicketWithBarCode(barCode)(getState());
 		if (ticket) {
-			if (ticket.payment) {
+			if (ticket.payment && ticket.payment.length > 0) {
 				const currentDate = new Date(Date.now()); // Date.now() gets mocked within the test!
 				const ticketState = calculateTicketState(ticket, currentDate);
 				return ticketState;

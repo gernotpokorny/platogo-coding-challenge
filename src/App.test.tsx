@@ -46,77 +46,236 @@ describe('getTicket();', () => {
 	}, 120000);
 });
 
-describe('calculatePrice(barcode);', () => {
-	test('the calculated price of a newly issued ticket should be 2', async () => {
-		renderWithProviders(<App />);
-		await act(async () => {
-			const barCode = await window.getTicket();
-			await new Promise(resolve => setTimeout(resolve, 100));
-			const price = window.calculatePrice(barCode);
-			expect(price).toBe(2);
-		});
-	});
-	test('Every started hour costs 2 Eur more: 59 min 59 sec passed', async () => {
-		renderWithProviders(<App />);
-		await act(async () => {
-			const barCode = await window.getTicket();
-			const currentDate = Date.now();
-			const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now').mockImplementation(() => currentDate + (60 * 60 * 1000) - 1000);
-			const price = window.calculatePrice(barCode);
-			expect(price).toBe(2);
-			dateNowSpyCalculatePrice.mockRestore();
-		});
-	});
-	test('Every started hour costs 2 Eur more: 60 min passed', async () => {
-		renderWithProviders(<App />);
-		await act(async () => {
-			const barCode = await window.getTicket();
-			const currentDate = Date.now();
-			const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now').mockImplementation(() => currentDate + 60 * 60 * 1000);
-			const price = window.calculatePrice(barCode);
-			expect(price).toBe(4);
-			dateNowSpyCalculatePrice.mockRestore();
-		});
-	});
-	test('the calculated price of a PAID ticket should be 0 and a payment receipt should be returned', async () => {
-		renderWithProviders(<App />);
-		await act(async () => {
-			const dateNowSpyGetTicket = jest.spyOn(Date, 'now').mockImplementation(() => new Date(2020, 2, 10, 0, 0, 0, 0).getTime());
-			const barCode = await window.getTicket();
-			dateNowSpyGetTicket.mockRestore();
-			const dateNowSpyPayTicket = jest.spyOn(Date, 'now').mockImplementation(() => new Date(2020, 2, 10, 3, 0, 0, 0).getTime());
-			await window.payTicket(barCode, PaymentMethod.CASH);
-			dateNowSpyPayTicket.mockRestore();
-			const price = window.calculatePrice(barCode);
-			expect(Object.prototype.hasOwnProperty.call(price, 'ticketPrice')).toBe(true);
-			expect(Object.prototype.hasOwnProperty.call(price, 'paymentReceipt')).toBe(true);
-			expect((price as unknown as CalculatePricePaidTicketReturnValue).ticketPrice).toBe(0);
-			expect((price as unknown as CalculatePricePaidTicketReturnValue).paymentReceipt).toStrictEqual([
-				'Payed: 6€',
-				'Payment date: Dienstag, 10. März 2020 um 03:00:00',
-				'Payment method: CASH',
-			]);
-		});
-	});
-	describe('Already payed ticket where 15 min have passed already', () => {
-		test.skip('First hour price after reset should be 2', async () => {
-			//TODO: paymentDate should be a number[]
-			//TODO: calculatePrice() must take the current ticket state into account
+describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () => {
+	describe('unpaid ticket', () => {
+		test('the calculated price of a newly issued ticket should be 2', async () => {
 			renderWithProviders(<App />);
 			await act(async () => {
 				const barCode = await window.getTicket();
-				const currentDate = Date.now();
-				const dateNowSpyPayTicket = jest.spyOn(Date, 'now').mockImplementation(() => currentDate + (15 * 60 * 1000) + 1000);
-				await window.payTicket(barCode, PaymentMethod.CASH);
-				dateNowSpyPayTicket.mockRestore();
+				await new Promise(resolve => setTimeout(resolve, 100));
 				const price = window.calculatePrice(barCode);
 				expect(price).toBe(2);
 			});
 		});
-		test.todo('First hour price after reset: 59 min 59 sec');
-		test.todo('Every started hour costs 2 Eur more');
-		test.todo('the calculated price of a PAID ticket should be 0 and a payment receipt should be returned');
-	})
+		test('Every started hour costs 2 Eur more: 60 min 00 sec passed: price should be 2', async () => {
+			renderWithProviders(<App />);
+			await act(async () => {
+				const dateNowSpyGetTicket = jest.spyOn(Date, 'now')
+					.mockImplementation(() => new Date(2020, 2, 10, 1, 0, 0, 0).getTime());
+				const barCode = await window.getTicket();
+				dateNowSpyGetTicket.mockRestore();
+				const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
+					.mockImplementation(() => new Date(2020, 2, 10, 2, 0, 0, 0).getTime());
+				const price = window.calculatePrice(barCode);
+				dateNowSpyCalculatePrice.mockRestore();
+				expect(price).toBe(2);
+			});
+		});
+		test('Every started hour costs 2 Eur more: 60 min 01 sec passed: price should be 4', async () => {
+			renderWithProviders(<App />);
+			await act(async () => {
+				const dateNowSpyGetTicket = jest.spyOn(Date, 'now')
+					.mockImplementation(() => new Date(2020, 2, 10, 1, 0, 0, 0).getTime());
+				const barCode = await window.getTicket();
+				dateNowSpyGetTicket.mockRestore();
+				const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
+					.mockImplementation(() => new Date(2020, 2, 10, 2, 0, 1, 0).getTime());
+				const price = window.calculatePrice(barCode);
+				dateNowSpyCalculatePrice.mockRestore();
+				expect(price).toBe(4);
+			});
+		});
+	});
+	describe('payed ticket', () => {
+		describe('<= 15 min have passed since last payment', () => {
+			describe('one payment', () => {
+				test('15 min 00 sec passed since last payment: the calculated price should be 0 and a payment receipt should be returned',
+					async () => {
+						renderWithProviders(<App />);
+						await act(async () => {
+							const dateNowSpyGetTicket = jest.spyOn(Date, 'now')
+								.mockImplementation(() => new Date(2020, 2, 10, 0, 0, 0, 0).getTime());
+							const barCode = await window.getTicket();
+							dateNowSpyGetTicket.mockRestore();
+							const dateNowSpyPayTicket = jest.spyOn(Date, 'now')
+								.mockImplementation(() => new Date(2020, 2, 10, 3, 0, 0, 0).getTime());
+							await window.payTicket(barCode, PaymentMethod.CASH);
+							dateNowSpyPayTicket.mockRestore();
+							const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
+								.mockImplementation(() => new Date(2020, 2, 10, 3, 15, 0, 0).getTime());
+							const price = window.calculatePrice(barCode);
+							dateNowSpyCalculatePrice.mockRestore();
+							expect(Object.prototype.hasOwnProperty.call(price, 'ticketPrice')).toBe(true);
+							expect(Object.prototype.hasOwnProperty.call(price, 'paymentReceipt')).toBe(true);
+							expect((price as unknown as CalculatePricePaidTicketReturnValue).ticketPrice).toBe(0);
+							expect((price as unknown as CalculatePricePaidTicketReturnValue).paymentReceipt).toStrictEqual([
+								'Payed: 6€',
+								'Payment date: Dienstag, 10. März 2020 um 03:00:00',
+								'Payment method: CASH',
+							]);
+						});
+					});
+			});
+			describe('multiple payments', () => {
+				test('15 min 00 sec passed since last payment: the calculated price should be 0 and a payment receipt should be returned',
+					async () => {
+						renderWithProviders(<App />);
+						await act(async () => {
+							const dateNowSpyGetTicket = jest.spyOn(Date, 'now')
+								.mockImplementation(() => new Date(2020, 2, 10, 0, 0, 0, 0).getTime());
+							const barCode = await window.getTicket();
+							dateNowSpyGetTicket.mockRestore();
+							const dateNowSpyPayTicket1 = jest.spyOn(Date, 'now')
+								.mockImplementation(() => new Date(2020, 2, 10, 3, 0, 0, 0).getTime());
+							await window.payTicket(barCode, PaymentMethod.CASH);
+							dateNowSpyPayTicket1.mockRestore();
+							const dateNowSpyPayTicket2 = jest.spyOn(Date, 'now')
+								.mockImplementation(() => new Date(2020, 2, 10, 4, 0, 0, 0).getTime());
+							await window.payTicket(barCode, PaymentMethod.CASH);
+							dateNowSpyPayTicket2.mockRestore();
+							const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
+								.mockImplementation(() => new Date(2020, 2, 10, 4, 15, 0, 0).getTime());
+							const price = window.calculatePrice(barCode);
+							dateNowSpyCalculatePrice.mockRestore();
+							expect(Object.prototype.hasOwnProperty.call(price, 'ticketPrice')).toBe(true);
+							expect(Object.prototype.hasOwnProperty.call(price, 'paymentReceipt')).toBe(true);
+							expect((price as unknown as CalculatePricePaidTicketReturnValue).ticketPrice).toBe(0);
+							expect((price as unknown as CalculatePricePaidTicketReturnValue).paymentReceipt).toStrictEqual([
+								'Payed: 2€',
+								'Payment date: Dienstag, 10. März 2020 um 04:00:00',
+								'Payment method: CASH',
+							]);
+						});
+					});
+			});
+		});
+		describe('> 15 min have passed since last payment', () => {
+			describe('one payment', () => {
+				test('First hour price since the last payment should be 2', async () => {
+					renderWithProviders(<App />);
+					await act(async () => {
+						const dateNowSpyGetTicket = jest.spyOn(Date, 'now')
+							.mockImplementation(() => new Date(2020, 2, 10, 0, 0, 0, 0).getTime());
+						const barCode = await window.getTicket();
+						dateNowSpyGetTicket.mockRestore();
+						const dateNowSpyPayTicket = jest.spyOn(Date, 'now')
+							.mockImplementation(() => new Date(2020, 2, 10, 3, 0, 0, 0).getTime());
+						await window.payTicket(barCode, PaymentMethod.CASH);
+						dateNowSpyPayTicket.mockRestore();
+						const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
+							.mockImplementation(() => new Date(2020, 2, 10, 3, 15, 1, 0).getTime());
+						const price = window.calculatePrice(barCode);
+						dateNowSpyCalculatePrice.mockRestore();
+						expect(price).toBe(2);
+					});
+				});
+				test('Every started hour since the last payment costs 2 Eur more: 60 min 00 sec passed', async () => {
+					renderWithProviders(<App />);
+					await act(async () => {
+						const dateNowSpyGetTicket = jest.spyOn(Date, 'now')
+							.mockImplementation(() => new Date(2020, 2, 10, 0, 0, 0, 0).getTime());
+						const barCode = await window.getTicket();
+						dateNowSpyGetTicket.mockRestore();
+						const dateNowSpyPayTicket = jest.spyOn(Date, 'now')
+							.mockImplementation(() => new Date(2020, 2, 10, 3, 0, 0, 0).getTime());
+						await window.payTicket(barCode, PaymentMethod.CASH);
+						dateNowSpyPayTicket.mockRestore();
+						const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
+							.mockImplementation(() => new Date(2020, 2, 10, 4, 0, 0, 0).getTime());
+						const price = window.calculatePrice(barCode);
+						dateNowSpyCalculatePrice.mockRestore();
+						expect(price).toBe(2);
+					});
+				});
+				test('Every started hour since the last payment costs 2 Eur more: 60 min 01 sec passed', async () => {
+					renderWithProviders(<App />);
+					await act(async () => {
+						const dateNowSpyGetTicket = jest.spyOn(Date, 'now')
+							.mockImplementation(() => new Date(2020, 2, 10, 0, 0, 0, 0).getTime());
+						const barCode = await window.getTicket();
+						dateNowSpyGetTicket.mockRestore();
+						const dateNowSpyPayTicket = jest.spyOn(Date, 'now')
+							.mockImplementation(() => new Date(2020, 2, 10, 3, 0, 0, 0).getTime());
+						await window.payTicket(barCode, PaymentMethod.CASH);
+						dateNowSpyPayTicket.mockRestore();
+						const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
+							.mockImplementation(() => new Date(2020, 2, 10, 4, 0, 1, 0).getTime());
+						const price = window.calculatePrice(barCode);
+						dateNowSpyCalculatePrice.mockRestore();
+						expect(price).toBe(4);
+					});
+				});
+			});
+			describe('multiple payments', () => {
+				test('First hour price since the last payment should be 2', async () => {
+					renderWithProviders(<App />);
+					await act(async () => {
+						const dateNowSpyGetTicket = jest.spyOn(Date, 'now')
+							.mockImplementation(() => new Date(2020, 2, 10, 0, 0, 0, 0).getTime());
+						const barCode = await window.getTicket();
+						dateNowSpyGetTicket.mockRestore();
+						const dateNowSpyPayTicket1 = jest.spyOn(Date, 'now')
+							.mockImplementation(() => new Date(2020, 2, 10, 3, 0, 0, 0).getTime());
+						await window.payTicket(barCode, PaymentMethod.CASH);
+						dateNowSpyPayTicket1.mockRestore();
+						const dateNowSpyPayTicket2 = jest.spyOn(Date, 'now')
+							.mockImplementation(() => new Date(2020, 2, 10, 5, 0, 0, 0).getTime());
+						await window.payTicket(barCode, PaymentMethod.CASH);
+						dateNowSpyPayTicket2.mockRestore();
+						const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
+							.mockImplementation(() => new Date(2020, 2, 10, 5, 15, 1, 0).getTime());
+						const price = window.calculatePrice(barCode);
+						dateNowSpyCalculatePrice.mockRestore();
+						expect(price).toBe(2);
+					});
+				});
+				test('Every started hour since the last payment costs 2 Eur more: 60 min 00 sec passed', async () => {
+					renderWithProviders(<App />);
+					await act(async () => {
+						const dateNowSpyGetTicket = jest.spyOn(Date, 'now')
+							.mockImplementation(() => new Date(2020, 2, 10, 0, 0, 0, 0).getTime());
+						const barCode = await window.getTicket();
+						dateNowSpyGetTicket.mockRestore();
+						const dateNowSpyPayTicket1 = jest.spyOn(Date, 'now')
+							.mockImplementation(() => new Date(2020, 2, 10, 3, 0, 0, 0).getTime());
+						await window.payTicket(barCode, PaymentMethod.CASH);
+						dateNowSpyPayTicket1.mockRestore();
+						const dateNowSpyPayTicket2 = jest.spyOn(Date, 'now')
+							.mockImplementation(() => new Date(2020, 2, 10, 5, 0, 0, 0).getTime());
+						await window.payTicket(barCode, PaymentMethod.CASH);
+						dateNowSpyPayTicket2.mockRestore();
+						const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
+							.mockImplementation(() => new Date(2020, 2, 10, 6, 0, 0, 0).getTime());
+						const price = window.calculatePrice(barCode);
+						dateNowSpyCalculatePrice.mockRestore();
+						expect(price).toBe(2);
+					});
+				});
+				test('Every started hour since the last payment costs 2 Eur more: 60 min 01 sec passed', async () => {
+					renderWithProviders(<App />);
+					await act(async () => {
+						const dateNowSpyGetTicket = jest.spyOn(Date, 'now')
+							.mockImplementation(() => new Date(2020, 2, 10, 0, 0, 0, 0).getTime());
+						const barCode = await window.getTicket();
+						dateNowSpyGetTicket.mockRestore();
+						const dateNowSpyPayTicket1 = jest.spyOn(Date, 'now')
+							.mockImplementation(() => new Date(2020, 2, 10, 3, 0, 0, 0).getTime());
+						await window.payTicket(barCode, PaymentMethod.CASH);
+						dateNowSpyPayTicket1.mockRestore();
+						const dateNowSpyPayTicket2 = jest.spyOn(Date, 'now')
+							.mockImplementation(() => new Date(2020, 2, 10, 5, 0, 0, 0).getTime());
+						await window.payTicket(barCode, PaymentMethod.CASH);
+						dateNowSpyPayTicket2.mockRestore();
+						const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
+							.mockImplementation(() => new Date(2020, 2, 10, 6, 0, 1, 0).getTime());
+						const price = window.calculatePrice(barCode);
+						dateNowSpyCalculatePrice.mockRestore();
+						expect(price).toBe(4);
+					});
+				});
+			});
+		});
+	});
 });
 
 describe('getTicketState(barcode); and payTicket(barcode, paymentMethod);', () => {
@@ -128,44 +287,114 @@ describe('getTicketState(barcode); and payTicket(barcode, paymentMethod);', () =
 			expect(ticketState).toBe('UNPAID');
 		});
 	});
-	test('the ticket state of a paid ticket ticket should be PAID if not more than 15min have passed since the payment', async () => {
-		renderWithProviders(<App />);
-		await act(async () => {
-			const barCode = await window.getTicket();
-			await window.payTicket(barCode, PaymentMethod.CASH);
-			const ticketState = window.getTicketState(barCode);
-			expect(ticketState).toBe('PAID');
-		});
-	});
-	test(
-		'the ticket state of a paid ticket ticket should be PAID if not more than 15min have passed since the payment: 14 min 59 sec',
-		async () => {
-			renderWithProviders(<App />);
-			await act(async () => {
-				const barCode = await window.getTicket();
-				const currentDate = Date.now();
-				const dateNowSpyPayTicket = jest.spyOn(Date, 'now').mockImplementation(() => currentDate + (15 * 60 * 1000) - 1);
-				await window.payTicket(barCode, PaymentMethod.CASH);
-				const dateNowSpyGetTicketState = jest.spyOn(Date, 'now').mockImplementation(() => currentDate);
-				const ticketState = window.getTicketState(barCode);
-				expect(ticketState).toBe('PAID');
-				dateNowSpyPayTicket.mockRestore();
-				dateNowSpyGetTicketState.mockRestore();
+	describe('one payment', () => {
+		test('the ticket state of a paid ticket ticket should be PAID if not more than 15min have passed since the payment',
+			async () => {
+				renderWithProviders(<App />);
+				await act(async () => {
+					const barCode = await window.getTicket();
+					await window.payTicket(barCode, PaymentMethod.CASH);
+					const ticketState = window.getTicketState(barCode);
+					expect(ticketState).toBe('PAID');
+				});
 			});
-		});
-	test('the ticket state of a paid ticket ticket should be UNPAID if more than 15min have passed since the payment', async () => {
-		renderWithProviders(<App />);
-		await act(async () => {
-			const barCode = await window.getTicket();
-			const currentDate = Date.now();
-			const dateNowSpyPayTicket = jest.spyOn(Date, 'now').mockImplementation(() => currentDate + 15 * 60 * 1000);
-			await window.payTicket(barCode, PaymentMethod.CASH);
-			const dateNowSpyGetTicketState = jest.spyOn(Date, 'now').mockImplementation(() => currentDate);
-			const ticketState = window.getTicketState(barCode);
-			expect(ticketState).toBe('UNPAID');
-			dateNowSpyPayTicket.mockRestore();
-			dateNowSpyGetTicketState.mockRestore();
-		});
+		test('the ticket state of a paid ticket ticket should be PAID if not more than 15min have passed since the payment: 15 min',
+			async () => {
+				renderWithProviders(<App />);
+				await act(async () => {
+					const dateNowSpyGetTicket = jest.spyOn(Date, 'now')
+						.mockImplementation(() => new Date(2020, 2, 10, 1, 0, 0, 0).getTime());
+					const barCode = await window.getTicket();
+					dateNowSpyGetTicket.mockRestore();
+					const dateNowSpyPayTicket = jest.spyOn(Date, 'now')
+						.mockImplementation(() => new Date(2020, 2, 10, 3, 0, 0, 0).getTime());
+					await window.payTicket(barCode, PaymentMethod.CASH);
+					dateNowSpyPayTicket.mockRestore();
+					const dateNowSpyGetTicketState = jest.spyOn(Date, 'now')
+						.mockImplementation(() => new Date(2020, 2, 10, 3, 15, 0, 0).getTime());
+					const ticketState = window.getTicketState(barCode);
+					dateNowSpyGetTicketState.mockRestore();
+					expect(ticketState).toBe('PAID');
+				});
+			});
+		test('the ticket state of a paid ticket ticket should be UNPAID if more than 15min have passed since the payment',
+			async () => {
+				renderWithProviders(<App />);
+				await act(async () => {
+					const dateNowSpyGetTicket = jest.spyOn(Date, 'now')
+						.mockImplementation(() => new Date(2020, 2, 10, 1, 0, 0, 0).getTime());
+					const barCode = await window.getTicket();
+					dateNowSpyGetTicket.mockRestore();
+					const dateNowSpyPayTicket = jest.spyOn(Date, 'now')
+						.mockImplementation(() => new Date(2020, 2, 10, 3, 0, 0, 0).getTime());
+					await window.payTicket(barCode, PaymentMethod.CASH);
+					dateNowSpyPayTicket.mockRestore();
+					const dateNowSpyGetTicketState = jest.spyOn(Date, 'now')
+						.mockImplementation(() => new Date(2020, 2, 10, 3, 15, 1, 0).getTime());
+					const ticketState = window.getTicketState(barCode);
+					dateNowSpyGetTicketState.mockRestore();
+					expect(ticketState).toBe('UNPAID');
+				});
+			});
+	});
+	describe('multiple payments', () => {
+		test('the ticket state of a paid ticket ticket should be PAID if not more than 15min have passed since the payment',
+			async () => {
+				renderWithProviders(<App />);
+				await act(async () => {
+					const barCode = await window.getTicket();
+					await window.payTicket(barCode, PaymentMethod.CASH);
+					await window.payTicket(barCode, PaymentMethod.CASH);
+					const ticketState = window.getTicketState(barCode);
+					expect(ticketState).toBe('PAID');
+				});
+			});
+		test('the ticket state of a paid ticket ticket should be PAID if not more than 15min have passed since the payment: 15 min',
+			async () => {
+				renderWithProviders(<App />);
+				await act(async () => {
+					const dateNowSpyGetTicket = jest.spyOn(Date, 'now')
+						.mockImplementation(() => new Date(2020, 2, 10, 1, 0, 0, 0).getTime());
+					const barCode = await window.getTicket();
+					dateNowSpyGetTicket.mockRestore();
+					const dateNowSpyPayTicket1 = jest.spyOn(Date, 'now')
+						.mockImplementation(() => new Date(2020, 2, 10, 3, 0, 0, 0).getTime());
+					await window.payTicket(barCode, PaymentMethod.CASH);
+					dateNowSpyPayTicket1.mockRestore();
+					const dateNowSpyPayTicket2 = jest.spyOn(Date, 'now')
+						.mockImplementation(() => new Date(2020, 2, 10, 5, 0, 0, 0).getTime());
+					await window.payTicket(barCode, PaymentMethod.CASH);
+					dateNowSpyPayTicket2.mockRestore();
+					const dateNowSpyGetTicketState = jest.spyOn(Date, 'now')
+						.mockImplementation(() => new Date(2020, 2, 10, 5, 15, 0, 0).getTime());
+					const ticketState = window.getTicketState(barCode);
+					dateNowSpyGetTicketState.mockRestore();
+					expect(ticketState).toBe('PAID');
+				});
+			});
+		test('the ticket state of a paid ticket ticket should be UNPAID if more than 15min have passed since the payment',
+			async () => {
+				renderWithProviders(<App />);
+				await act(async () => {
+					const dateNowSpyGetTicket = jest.spyOn(Date, 'now')
+						.mockImplementation(() => new Date(2020, 2, 10, 1, 0, 0, 0).getTime());
+					const barCode = await window.getTicket();
+					dateNowSpyGetTicket.mockRestore();
+					const dateNowSpyPayTicket1 = jest.spyOn(Date, 'now')
+						.mockImplementation(() => new Date(2020, 2, 10, 3, 0, 0, 0).getTime());
+					await window.payTicket(barCode, PaymentMethod.CASH);
+					dateNowSpyPayTicket1.mockRestore();
+					const dateNowSpyPayTicket2 = jest.spyOn(Date, 'now')
+						.mockImplementation(() => new Date(2020, 2, 10, 5, 0, 0, 0).getTime());
+					await window.payTicket(barCode, PaymentMethod.CASH);
+					dateNowSpyPayTicket2.mockRestore();
+					const dateNowSpyGetTicketState = jest.spyOn(Date, 'now')
+						.mockImplementation(() => new Date(2020, 2, 10, 5, 15, 1, 0).getTime());
+					const ticketState = window.getTicketState(barCode);
+					dateNowSpyGetTicketState.mockRestore();
+					expect(ticketState).toBe('UNPAID');
+				});
+			});
 	});
 });
 
