@@ -31,13 +31,13 @@ export const getFormattedPaymentDate = (paymentDate: Date) => {
 		hour: '2-digit',
 		minute: '2-digit',
 		second: '2-digit',
-	})
+	});
 };
 
 export const calculateTicketState = (ticket: Ticket, currentDate: Date) => {
 	if (ticket.payments && ticket.payments.length > 0) {
 		const paymentDate = new Date(ticket.payments[ticket.payments.length - 1].paymentDate);
-		const minutes = Math.abs(currentDate.getTime() - paymentDate.getTime()) / 60000 // Dividing by 60000 converts the milliseconds difference into minutes.
+		const minutes = Math.abs(currentDate.getTime() - paymentDate.getTime()) / 60000; // Dividing by 60000 converts the milliseconds difference into minutes.
 		return minutes > 15 ? TicketState.UNPAID : TicketState.PAID;
 	}
 	else {

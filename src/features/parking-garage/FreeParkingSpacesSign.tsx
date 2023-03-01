@@ -9,4 +9,4 @@ export const FreeParkingSpacesSign: React.FC<FreeParkingSpacesSignProps> = ({ am
 	return (
 		<DisplayBoard data-testid='free-spaces-display-board'>{amountOfFreeParkingSpaces}</DisplayBoard>
 	);
-}
+};

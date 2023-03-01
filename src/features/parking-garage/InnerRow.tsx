@@ -33,4 +33,4 @@ export const InnerRow: React.FC<InnerRowProps> = ({
 			{blank}
 		</InnerRowContainer>
 	);
-}
+};

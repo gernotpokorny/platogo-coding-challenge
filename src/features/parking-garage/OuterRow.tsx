@@ -18,4 +18,4 @@ export const OuterRow = ({ start, end }: { start: number; end: number }) => {
 			))}
 		</OuterRowContainer>
 	);
-}
+};

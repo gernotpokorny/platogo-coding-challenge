@@ -18,9 +18,9 @@ const persistConfig = {
 	version: 1,
 	storage,
 	stateReconciler: autoMergeLevel2,
-}
+};
 
-const persistedReducer = persistReducer<ReturnType<typeof rootReducer>>(persistConfig, rootReducer)
+const persistedReducer = persistReducer<ReturnType<typeof rootReducer>>(persistConfig, rootReducer);
 
 export const setupStore = (preloadedState?: PreloadedState<RootState>) => {
 	return configureStore({
@@ -32,7 +32,7 @@ export const setupStore = (preloadedState?: PreloadedState<RootState>) => {
 				},
 			}),
 	});
-}
+};
 
 export type RootState = ReturnType<typeof rootReducer>;
 export type AppStore = ReturnType<typeof setupStore>;

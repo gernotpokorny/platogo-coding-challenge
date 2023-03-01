@@ -30,7 +30,7 @@ export const payTicket = (ticket: Ticket, paymentMethod: PaymentMethod) => {
 			});
 		}, 500);
 	});
-}
+};
 
 interface GetTicketResponseSuccess {
 	ok: true;
@@ -59,7 +59,7 @@ export const getTicket = () => {
 			});
 		}, 500);
 	});
-}
+};
 
 interface GateCheckoutResponseSuccess {
 	ok: true;
@@ -85,4 +85,4 @@ export const gateCheckout = (ticket: Ticket) => {
 			});
 		}, 500);
 	});
-}
+};
