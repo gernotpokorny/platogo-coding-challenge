@@ -17,12 +17,10 @@ import useAwaitableComponent from '../../shared/hooks/useAwaitableComponent';
 import { selectTicketWithBarCode } from './parkingGarageSlice';
 
 // styles
-import { StyledListItem } from './ParkingBox.style';
-import { ParkingBoxContainer } from './ParkingGarage.style';
+import { StyledListItem, ParkingBoxContainer } from './ParkingBox.style';
 
 // types
-import { ParkingSpace } from './parkingGarageSlice';
-import { CalculatePricePaidTicketReturnValue } from './parkingGarageSlice';
+import { ParkingSpace, CalculatePricePaidTicketReturnValue } from './parkingGarageSlice';
 
 interface ParkingBoxProps {
 	parkingSpace: ParkingSpace

@@ -1,7 +1,7 @@
 import { styled } from '@mui/material';
 
 // Components
-import { Box, Button, Snackbar } from '@mui/material';
+import { Box, Snackbar } from '@mui/material';
 
 interface InnerRowContainerProps {
 	readonly first?: boolean;
@@ -51,23 +51,6 @@ export const InnerRowContainer = (
 		},
 	}))
 );
-
-export const ParkingBoxContainer = styled(Button)(({ theme }) => ({
-	justifyContent: 'center',
-	alignItems: 'center',
-	fontSize: '16px',
-	cursor: 'pointer',
-	'&.free': {
-		background: theme.status.freeSpot,
-	},
-	'&.occupied': {
-		background: theme.status.occupiedSpot,
-	},
-	color: 'inherit',
-	borderRadius: 0,
-	padding: 0,
-	minWidth: '0',
-}));
 
 export const Entry = styled(Box)(({ theme }) => ({
 	position: 'absolute',

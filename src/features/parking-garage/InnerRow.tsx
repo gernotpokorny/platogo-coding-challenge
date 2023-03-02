@@ -1,7 +1,8 @@
-import { useSelector } from 'react-redux';
-
 // components
 import { ParkingBox } from './ParkingBox';
+
+// hooks
+import { useSelector } from 'react-redux';
 
 // selectors
 import { selectParkingSpaces } from './parkingGarageSlice';

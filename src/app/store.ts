@@ -1,6 +1,3 @@
-import { configureStore, ThunkAction, Action, PreloadedState } from '@reduxjs/toolkit';
-import { combineReducers } from 'redux';
-
 // persist
 import { persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
@@ -8,6 +5,13 @@ import autoMergeLevel2 from 'redux-persist/lib/stateReconciler/autoMergeLevel2';
 
 // reducer
 import parkingGarageReducer from '../features/parking-garage/parkingGarageSlice';
+
+// types
+import { ThunkAction, Action, PreloadedState } from '@reduxjs/toolkit';
+
+// utils
+import { configureStore } from '@reduxjs/toolkit';
+import { combineReducers } from 'redux';
 
 const rootReducer = combineReducers({
 	parkingGarage: parkingGarageReducer,

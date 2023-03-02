@@ -1,7 +1,8 @@
-import { styled } from '@mui/material';
-
-// Components
+// components
 import { Box } from '@mui/material';
+
+// utils
+import { styled } from '@mui/material';
 
 export const DisplayBoard = styled(Box)(({ theme }) => ({
 	display: 'flex',

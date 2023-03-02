@@ -1,4 +1,8 @@
-import { Dialog, styled } from '@mui/material';
+// components
+import { Dialog } from '@mui/material';
+
+// utils
+import { styled } from '@mui/material';
 
 interface StyledDialogProps {
 	showRedBackgroundIfNonCancelable: boolean;

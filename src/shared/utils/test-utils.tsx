@@ -1,15 +1,22 @@
-import React, { PropsWithChildren } from 'react';
-import { render } from '@testing-library/react';
-import type { RenderOptions } from '@testing-library/react';
-import type { PreloadedState } from '@reduxjs/toolkit';
+import React from 'react';
+
+// components
 import { Provider } from 'react-redux';
 
 // theme
 import { ThemeProvider } from '@mui/material/styles';
 import { theme } from '../../theme';
 
+// types
+import type { PreloadedState } from '@reduxjs/toolkit';
+import type { RenderOptions } from '@testing-library/react';
+import { PropsWithChildren } from 'react';
 import type { AppStore, RootState } from '../../app/store';
+
+// utils
+import { render } from '@testing-library/react';
 import { setupStore } from '../../app/store';
+
 // As a basic setup, import your same slice reducers
 
 // This type interface extends the default options for render from RTL, as well

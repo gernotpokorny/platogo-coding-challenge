@@ -1,5 +1,5 @@
 // components
-import { ListItem } from '@mui/material';
+import { ListItem, Button } from '@mui/material';
 
 // utils
 import { styled } from '@mui/material';
@@ -12,4 +12,21 @@ export const StyledListItem = styled(ListItem)(({ theme }) => ({
 	'& > div': {
 		margin: 0,
 	},
+}));
+
+export const ParkingBoxContainer = styled(Button)(({ theme }) => ({
+	justifyContent: 'center',
+	alignItems: 'center',
+	fontSize: '16px',
+	cursor: 'pointer',
+	'&.free': {
+		background: theme.status.freeSpot,
+	},
+	'&.occupied': {
+		background: theme.status.occupiedSpot,
+	},
+	color: 'inherit',
+	borderRadius: 0,
+	padding: 0,
+	minWidth: '0',
 }));

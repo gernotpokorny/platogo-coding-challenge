@@ -1,5 +1,3 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-
 // api
 import { getTicket, payTicket, gateCheckout } from './parkingGarageAPI';
 
@@ -9,6 +7,7 @@ import { SetNonNullable } from 'type-fest';
 import { PayloadAction } from '@reduxjs/toolkit';
 
 // utils
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
 import { calculateTicketPrice, getFormattedPaymentDate, calculateTicketState } from './ParkingGarage.utils';
 
 export const PARKING_CAPACITY = 54;
