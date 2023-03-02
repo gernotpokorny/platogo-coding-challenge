@@ -109,7 +109,7 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 							expect(Object.prototype.hasOwnProperty.call(price, 'paymentReceipt')).toBe(true);
 							expect((price as unknown as CalculatePricePaidTicketReturnValue).ticketPrice).toBe(0);
 							expect((price as unknown as CalculatePricePaidTicketReturnValue).paymentReceipt).toStrictEqual([
-								'Payed: 6€',
+								'Paid: 6€',
 								'Payment date: Dienstag, 10. März 2020 um 03:00:00',
 								'Payment method: CASH',
 							]);
@@ -141,7 +141,7 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 							expect(Object.prototype.hasOwnProperty.call(price, 'paymentReceipt')).toBe(true);
 							expect((price as unknown as CalculatePricePaidTicketReturnValue).ticketPrice).toBe(0);
 							expect((price as unknown as CalculatePricePaidTicketReturnValue).paymentReceipt).toStrictEqual([
-								'Payed: 2€',
+								'Paid: 2€',
 								'Payment date: Dienstag, 10. März 2020 um 04:00:00',
 								'Payment method: CASH',
 							]);

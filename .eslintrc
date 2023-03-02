@@ -26,6 +26,10 @@
 				"ignoreComments": true,
 				"ignoreTemplateLiterals": true
 			}
+		],
+		"semi": [
+			"warn",
+			"always"
 		]
 	}
 }

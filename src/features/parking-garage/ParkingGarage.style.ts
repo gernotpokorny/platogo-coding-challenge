@@ -1,7 +1,7 @@
 import { styled } from '@mui/material';
 
 // Components
-import { Box, Button } from '@mui/material';
+import { Box, Button, Snackbar } from '@mui/material';
 
 interface InnerRowContainerProps {
 	readonly first?: boolean;
@@ -95,3 +95,14 @@ export const FreeParkingSpacesSignWrapper = styled(
 	left: '-40px',
 	top: '166px',
 }));
+
+export const GoodByeSnackbarMessageWrapper = styled(Box)(({ theme }) => ({
+	textAlign: 'center',
+}));
+
+export const StyledSnackbar = styled(Snackbar)(({ theme }) => ({
+	'& .MuiSnackbarContent-message': {
+		padding: 0,
+	},
+}));
+
