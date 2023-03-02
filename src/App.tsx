@@ -1,6 +1,3 @@
-import { useMemo } from 'react';
-import { bindActionCreators } from 'redux';
-
 // actions
 import {
 	getTicketAsync,
@@ -15,9 +12,13 @@ import { ParkingGarage } from './features/parking-garage/ParkingGarage';
 
 // hooks
 import { useAppDispatch } from './app/hooks';
+import { useMemo } from 'react';
 
 // types
 import { BarCode, PaymentMethod } from './features/parking-garage/parkingGarageSlice';
+
+// utils
+import { bindActionCreators } from 'redux';
 
 declare global {
 	interface Window {
