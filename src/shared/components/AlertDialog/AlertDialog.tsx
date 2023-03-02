@@ -16,7 +16,7 @@ export type AlertDialogProps = BaseDialogProps & {
 	title: string;
 	content: string | ReactNode;
 	onSuccess: () => void;
-	onCancel: () => void;
+	onCancel?: () => void;
 	successButtonText?: string;
 	cancelButtonText?: string;
 	showSuccessButton?: boolean;
