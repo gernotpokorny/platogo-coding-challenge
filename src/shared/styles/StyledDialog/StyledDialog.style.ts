@@ -34,5 +34,17 @@ export const StyledDialog = styled(
 			maxHeight: '100vh',
 			outline: 'none',
 			overflow: 'auto',
+			'@media (max-width: 1600px)': {
+				width: '35vw',
+			},
+			'@media (max-width: 1280px)': {
+				width: '40vw',
+			},
+			'@media (max-width: 1024px)': {
+				width: '50vw',
+			},
+			'@media (max-width: 800px)': {
+				width: '62vw',
+			},
 		},
 	}));

@@ -102,7 +102,7 @@ export const GoodByeSnackbarMessageWrapper = styled(Box)(({ theme }) => ({
 
 export const StyledSnackbar = styled(Snackbar)(({ theme }) => ({
 	'& .MuiSnackbarContent-message': {
-		padding: 0,
+		padding: '0.38vw',
 	},
 }));
 

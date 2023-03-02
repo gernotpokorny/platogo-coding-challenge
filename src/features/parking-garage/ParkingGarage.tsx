@@ -6,6 +6,7 @@ import { OuterRow } from './OuterRow';
 import { InnerRow } from './InnerRow';
 import { FreeParkingSpacesSign } from './FreeParkingSpacesSign';
 import { AlertDialog } from '../../shared/components/AlertDialog';
+import { Typography } from '@mui/material';
 
 // hooks
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
@@ -67,8 +68,8 @@ export const ParkingGarage = () => {
 				}}
 				message={
 					<GoodByeSnackbarMessageWrapper>
-						<p>Thank you, have a nice day!</p>
-						<p>Goodbye!</p>
+						<Typography variant='body1'>Thank you, have a nice day!</Typography>
+						<Typography variant='body1'>Goodbye!</Typography>
 					</GoodByeSnackbarMessageWrapper>
 				}
 			/>
@@ -77,8 +78,8 @@ export const ParkingGarage = () => {
 					title='Error'
 					content={
 						<>
-							<p>{error.message}</p>
-							<p>Please contact the support.</p>
+							<Typography variant='body1'>{error.message}</Typography>
+							<Typography variant='body1'>Please contact the support.</Typography>
 						</>
 					}
 					successButtonText='Confirm'

@@ -56,9 +56,48 @@ export const theme = createTheme({
 			default: '#00000055',
 		},
 	},
+	components: {
+		MuiTypography: {
+			styleOverrides: {
+				h1: {
+					fontSize: 'calc(12px + 1.38vw)',
+					fontWeight: 'bold',
+				},
+				h2: {
+					fontSize: 'calc(12px + 1vw)',
+					fontWeight: 'bold',
+				},
+				h3: {
+					fontSize: 'calc(12px + 0.72vw)',
+					fontWeight: 'bold',
+				},
+				h4: {
+					fontSize: 'calc(12px + 0.52vw)',
+					fontWeight: 'bold',
+				},
+				body1: {
+					fontSize: 'calc(12px + 0.38vw)',
+					margin: '1vw 0',
+					'&:first-child': {
+						marginTop: 0,
+					},
+					'&:last-child': {
+						marginBottom: 0,
+					},
+				},
+				button: {
+					fontSize: 'calc(12px + 1vw)',
+					lineHeight: 'calc(12px + 1vw)',
+					fontWeight: 300,
+					textTransform: 'none',
+				},
+			},
+		},
+	},
 });
 
 theme.components = {
+	...theme.components,
 	MuiButton: {
 		variants: [
 			{

@@ -3,6 +3,7 @@ import { parkAsync, leaveAsync, calculatePrice, getTicketState, setError } from 
 
 // components
 import { AlertDialog } from '../../shared/components/AlertDialog';
+import { List, Typography } from '@mui/material';
 
 // constants
 import { PaymentMethod, TicketState } from './parkingGarageSlice';
@@ -16,6 +17,7 @@ import useAwaitableComponent from '../../shared/hooks/useAwaitableComponent';
 import { selectTicketWithBarCode } from './parkingGarageSlice';
 
 // styles
+import { StyledListItem } from './ParkingBox.style';
 import { ParkingBoxContainer } from './ParkingGarage.style';
 
 // types
@@ -144,7 +146,11 @@ export const ParkingBox: React.FC<ParkingBoxProps> = ({ parkingSpace }) => {
 			</ParkingBoxContainer>
 			<AlertDialog
 				title='Welcome'
-				content={'Press "Get Ticket" in order to get a parking ticket.'}
+				content={
+					<>
+						<Typography variant='body1'>Press "Get Ticket" in order to get a parking ticket.</Typography>
+					</>
+				}
 				successButtonText='Get Ticket'
 				cancelButtonText='Cancel'
 				open={isWelcomeDialogOpen}
@@ -159,10 +165,12 @@ export const ParkingBox: React.FC<ParkingBoxProps> = ({ parkingSpace }) => {
 				content={
 					<>
 						{ticketWithBarCode && ticketState === TicketState.UNPAID && ticketWithBarCode.payments && (
-							<p>15 minutes have passed since your last payment.</p>
+							<Typography variant='body1'>15 minutes have passed since your last payment.</Typography>
 						)}
-						<p>The ticket must be payed at the cash-machine in order to leave the parking garage.</p>
-						<p>Ticket price: {`${ticketPrice}`} €</p>
+						<Typography variant='body1'>
+							The ticket must be payed at the cash-machine in order to leave the parking garage.
+						</Typography>
+						<Typography variant='body1'>Ticket price: {`${ticketPrice}`} €</Typography>
 					</>
 				}
 				successButtonText='Pay Ticket'
@@ -178,26 +186,35 @@ export const ParkingBox: React.FC<ParkingBoxProps> = ({ parkingSpace }) => {
 				title='Payment Successful'
 				content={
 					<>
-						<p>The payment was successful.</p>
+						<Typography variant='body1'>The payment was successful.</Typography>
 						{
 							ticketPrice
 							&& Object.prototype.hasOwnProperty.call(ticketPrice, 'ticketPrice')
 							&& Object.prototype.hasOwnProperty.call(ticketPrice, 'paymentReceipt')
 							&& (
 								<>
-									<p>Payment receipt:</p>
-									<ul>
+									<Typography variant='body1'>Payment receipt:</Typography>
+									<List sx={{ backgroundColor: '#efefef' }}>
 										{(ticketPrice as CalculatePricePaidTicketReturnValue).paymentReceipt.map((line, index) => (
-											<li key={index}>{line}</li> // Note: I know it's bad practice to set the index as a key, but it doesn't matter here.
+											// Note: I know it's bad practice to set the index as a key, but it doesn't matter here.
+											<StyledListItem key={index}>
+												<Typography
+													variant='body1'
+													component='span'
+													sx={{ fontFamily: 'monospace' }}
+												>
+													{line}
+												</Typography>
+											</StyledListItem>
 										))}
-									</ul>
+									</List>
 								</>
 							)
 						}
-						<p>
+						<Typography variant='body1'>
 							You have 15 minutes to leave the parking garage.
 							If you don't leave within 15 minutes, then you have to pay the addtional parking time.
-						</p>
+						</Typography>
 					</>
 				}
 				successButtonText='Confirm'
@@ -210,10 +227,10 @@ export const ParkingBox: React.FC<ParkingBoxProps> = ({ parkingSpace }) => {
 				title='Gate Checkout'
 				content={
 					<>
-						<p>Do you want to drive to the gate and leave the parking garage?</p>
-						<p>
+						<Typography variant='body1'>Do you want to drive to the gate and leave the parking garage?</Typography>
+						<Typography variant='body1'>
 							Note: If you do not leave within 15 minutes, then you have to pay the addional parking time.
-						</p>
+						</Typography>
 					</>
 				}
 				successButtonText='Leave'
@@ -226,9 +243,9 @@ export const ParkingBox: React.FC<ParkingBoxProps> = ({ parkingSpace }) => {
 				title='Not Paid Enough'
 				content={
 					<>
-						<p>The ticket is not payed enough.</p>
-						<p>15 minutes have already passed since the payment was made.</p>
-						<p>Please make another payment.</p>
+						<Typography variant='body1'>The ticket is not payed enough.</Typography>
+						<Typography variant='body1'>15 minutes have already passed since the payment was made.</Typography>
+						<Typography variant='body1'>Please make another payment.</Typography>
 					</>
 				}
 				successButtonText='Confirm'

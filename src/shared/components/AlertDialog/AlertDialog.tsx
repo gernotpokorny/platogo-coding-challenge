@@ -1,5 +1,6 @@
 // components
 import { BaseDialog } from '../BaseDialog';
+import { Typography } from '@mui/material';
 
 // styles
 import { StyledDialogActions } from '../../styles/StyledDialogActions';
@@ -43,18 +44,20 @@ export const AlertDialog: React.FC<AlertDialogProps> = ({
 
 	return (
 		<BaseDialog {...dialogProps} disableEscapeKeyDown={disableEscapeKeyDown} disableBackdropClick={disableBackdropClick}>
-			<StyledDialogTitle>{title}</StyledDialogTitle>
+			<StyledDialogTitle>
+				<Typography variant='h3'>{title}</Typography>
+			</StyledDialogTitle>
 			<StyledDialogContent>
 				{content}
 			</StyledDialogContent>
 			<StyledDialogActions>
 				{showCancelButton && (
 					<StyledButton onClick={onCancel} variant={cancelButtonVariant}>
-						{cancelButtonText}
+						<Typography variant='button'>{cancelButtonText}</Typography>
 					</StyledButton>)}
 				{showSuccessButton && (
 					<StyledButton onClick={onSuccess} variant={successButtonVariant} autoFocus>
-						{successButtonText}
+						<Typography variant='button'>{successButtonText}</Typography>
 					</StyledButton>
 				)}
 			</StyledDialogActions>
