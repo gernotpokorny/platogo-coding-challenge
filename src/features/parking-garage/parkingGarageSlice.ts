@@ -61,7 +61,7 @@ export const initialState: ParkingGarageState = {
 	isGoodByeSnackbarOpen: false,
 };
 
-export const ParkingGarageSlice = createSlice({
+export const parkingGarageSlice = createSlice({
 	name: 'parkingGarage',
 	initialState,
 	// The `reducers` field lets us define reducers and generate associated actions
@@ -112,7 +112,7 @@ export const ParkingGarageSlice = createSlice({
 	},
 });
 
-export const { setIsGoodByeSnackbarOpen } = ParkingGarageSlice.actions;
+export const { setIsGoodByeSnackbarOpen } = parkingGarageSlice.actions;
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
@@ -398,4 +398,4 @@ export const getFreeSpaces = (): AppThunk<number> =>
 		return amountOfFreeParkingSpaces;
 	};
 
-export default ParkingGarageSlice.reducer;
+export default parkingGarageSlice.reducer;
