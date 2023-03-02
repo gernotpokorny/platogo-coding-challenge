@@ -205,7 +205,6 @@ export const ParkingBox: React.FC<ParkingBoxProps> = ({ parkingSpace }) => {
 				successButtonVariant='confirm'
 				open={isPaymentSuccessfulDialogOpen}
 				onSuccess={resolvePaymentSuccessfulDialog}
-				onCancel={() => { resolvePaymentSuccessfulDialog(false); }}
 			/>
 			<AlertDialog
 				title='Gate Checkout'
@@ -237,7 +236,6 @@ export const ParkingBox: React.FC<ParkingBoxProps> = ({ parkingSpace }) => {
 				successButtonVariant='confirm'
 				open={isNotPayedEnoughDialogOpen}
 				onSuccess={resolveNotPayedEnoughDialog}
-				onCancel={() => { resolveNotPayedEnoughDialog(false); }}
 			/>
 		</>
 	);
