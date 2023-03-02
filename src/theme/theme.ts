@@ -79,7 +79,7 @@ export const theme = createTheme({
 				body1: {
 					fontSize: 'calc(12px + 0.38vw)',
 					margin: '1vw 0',
-					'&:first-child': {
+					'&:first-of-type': {
 						marginTop: 0,
 					},
 					'&:last-child': {
