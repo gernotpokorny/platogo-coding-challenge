@@ -5,7 +5,7 @@
 The coding challenge description can be found within the following file.
 
 ```
-docs/Platogo Developer Challenge - Client - with provided Template.pdf`
+docs/Platogo Developer Challenge - Client - with provided Template.pdf
 ```
 
 ---
