@@ -1,12 +1,9 @@
 import React from 'react';
-import { createRoot } from 'react-dom/client';
-import { Provider } from 'react-redux';
-import { setupStore } from './app/store';
-import reportWebVitals from './reportWebVitals';
 
 // components
 import App from './App';
 import CssBaseline from '@mui/material/CssBaseline';
+import { Provider } from 'react-redux';
 
 // persist
 import { persistStore } from 'redux-persist';
@@ -15,6 +12,11 @@ import { PersistGate } from 'redux-persist/integration/react';
 // theme
 import { ThemeProvider } from '@mui/material/styles';
 import { theme } from './theme';
+
+// utils
+import { createRoot } from 'react-dom/client';
+import { setupStore } from './app/store';
+import reportWebVitals from './reportWebVitals';
 
 const container = document.getElementById('root')!;
 const root = createRoot(container);
