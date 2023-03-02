@@ -1,5 +1,5 @@
 // actions
-import { parkAsync, leaveAsync, calculatePrice, getTicketState } from './parkingGarageSlice';
+import { parkAsync, leaveAsync, calculatePrice, getTicketState, setError } from './parkingGarageSlice';
 
 // components
 import { AlertDialog } from '../../shared/components/AlertDialog';
@@ -94,7 +94,21 @@ export const ParkingBox: React.FC<ParkingBoxProps> = ({ parkingSpace }) => {
 				await dispatch(parkAsync({ spaceNumber, executeWelcomeDialog, resetWelcomeDialog })).unwrap();
 			}
 		} catch (error) {
-			console.log('error', error);
+			if (typeof error === 'object' && Object.prototype.hasOwnProperty.call(error, 'message')) {
+				dispatch(setError({
+					name: (error as Error).name,
+					message: (error as Error).message,
+					stack: (error as Error).stack,
+				}));
+			}
+			else if (typeof error === 'string') {
+				dispatch(setError({
+					message: error,
+				}));
+			}
+			else {
+				console.error(error);
+			}
 		}
 		buttonRef.current?.removeAttribute('disabled');
 	};

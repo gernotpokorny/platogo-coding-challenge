@@ -46,10 +46,17 @@ export interface ParkingSpace {
 	barCode: BarCode | null;
 }
 
+interface Error {
+	message: string;
+	name?: string;
+	stack?: string;
+};
+
 export interface ParkingGarageState {
 	parkingSpaces: ParkingSpace[];
 	currentlyIssuedTickets: Record<BarCode, Ticket>;
 	isGoodByeSnackbarOpen: boolean;
+	error: Error | null;
 }
 
 export const initialState: ParkingGarageState = {
@@ -59,6 +66,7 @@ export const initialState: ParkingGarageState = {
 	})),
 	currentlyIssuedTickets: {},
 	isGoodByeSnackbarOpen: false,
+	error: null,
 };
 
 export const parkingGarageSlice = createSlice({
@@ -68,6 +76,9 @@ export const parkingGarageSlice = createSlice({
 	reducers: {
 		setIsGoodByeSnackbarOpen: (state, action: PayloadAction<boolean>) => {
 			state.isGoodByeSnackbarOpen = action.payload;
+		},
+		setError: (state, action: PayloadAction<Error | null>) => {
+			state.error = action.payload;
 		},
 	},
 	// The `extraReducers` field lets the slice handle actions defined elsewhere,
@@ -112,7 +123,7 @@ export const parkingGarageSlice = createSlice({
 	},
 });
 
-export const { setIsGoodByeSnackbarOpen } = parkingGarageSlice.actions;
+export const { setIsGoodByeSnackbarOpen, setError } = parkingGarageSlice.actions;
 
 // The function below is called a selector and allows us to select a value from
 // the state. Selectors can also be defined inline where they're used instead of
@@ -131,6 +142,7 @@ export const selectTicketWithBarCode = (barCode: BarCode | null) => (state: Root
 export const selectAmountOfFreeParkingSpaces = (state: RootState) =>
 	state.parkingGarage.parkingSpaces.length - Object.keys(state.parkingGarage.currentlyIssuedTickets).length;
 export const selectIsGoodByeSnackbarOpen = (state: RootState) => state.parkingGarage.isGoodByeSnackbarOpen;
+export const selectError = (state: RootState) => state.parkingGarage.error;
 
 export const getTicketAsync = createAsyncThunk<
 	Ticket,

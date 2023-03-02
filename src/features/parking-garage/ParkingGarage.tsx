@@ -1,17 +1,17 @@
 // actions
-import { setIsGoodByeSnackbarOpen } from './parkingGarageSlice';
+import { setIsGoodByeSnackbarOpen, setError } from './parkingGarageSlice';
 
 // components
 import { OuterRow } from './OuterRow';
 import { InnerRow } from './InnerRow';
 import { FreeParkingSpacesSign } from './FreeParkingSpacesSign';
+import { AlertDialog } from '../../shared/components/AlertDialog';
 
 // hooks
-import { useSelector } from 'react-redux';
-import { useAppDispatch } from '../../app/hooks';
+import { useAppDispatch, useAppSelector } from '../../app/hooks';
 
 // selectors
-import { selectAmountOfFreeParkingSpaces, selectIsGoodByeSnackbarOpen } from './parkingGarageSlice';
+import { selectAmountOfFreeParkingSpaces, selectIsGoodByeSnackbarOpen, selectError } from './parkingGarageSlice';
 
 // styles
 import {
@@ -27,8 +27,9 @@ import {
 
 export const ParkingGarage = () => {
 	const dispatch = useAppDispatch();
-	const amountOfFreeParkingSpaces = useSelector(selectAmountOfFreeParkingSpaces);
-	const isGoodByeSnackbarOpen = useSelector(selectIsGoodByeSnackbarOpen);
+	const amountOfFreeParkingSpaces = useAppSelector(selectAmountOfFreeParkingSpaces);
+	const isGoodByeSnackbarOpen = useAppSelector(selectIsGoodByeSnackbarOpen);
+	const error = useAppSelector(selectError);
 
 	return (
 		<>
@@ -71,6 +72,22 @@ export const ParkingGarage = () => {
 					</GoodByeSnackbarMessageWrapper>
 				}
 			/>
+			{error && (
+				<AlertDialog
+					title='Error'
+					content={
+						<>
+							<p>{error.message}</p>
+							<p>Please contact the support.</p>
+						</>
+					}
+					successButtonText='Confirm'
+					showCancelButton={false}
+					successButtonVariant='confirm'
+					open={Boolean(error)}
+					onSuccess={() => dispatch(setError(null))}
+				/>
+			)}
 		</>
 	);
 };
