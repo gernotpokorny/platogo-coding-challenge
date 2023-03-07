@@ -6,6 +6,10 @@ import App from './App';
 // constants
 import { PaymentMethod, PARKING_CAPACITY, ErrorCode } from './features/parking-garage/parkingGarageSlice';
 
+// mocks
+import { rest } from 'msw';
+import { setupServer } from 'msw/node';
+
 // types
 import { CalculatePricePaidTicketReturnValue } from './features/parking-garage/parkingGarageSlice';
 
@@ -13,7 +17,35 @@ import { CalculatePricePaidTicketReturnValue } from './features/parking-garage/p
 import { act } from 'react-dom/test-utils';
 import { renderWithProviders } from './shared/utils/test-utils';
 
+let currentBarCode = 1223352031944154;
+
 describe('getTicket();', () => {
+	const handlers = [
+		rest.post('http://localhost:3001/get-ticket', (req, res, ctx) => {
+			currentBarCode++;
+			return res(
+				ctx.json({
+					ticket: {
+						barCode: currentBarCode.toString(),
+						dateOfIssuance: (new Date()).getTime(),
+					},
+				}),
+				ctx.delay(10)
+			);
+		}),
+	];
+
+	const server = setupServer(...handlers);
+
+	// Enable API mocking before tests.
+	beforeAll(() => server.listen());
+
+	// Reset any runtime request handlers we may add during the tests.
+	afterEach(() => server.resetHandlers());
+
+	// Disable API mocking after the tests are done.
+	afterAll(() => server.close());
+
 	test('await getTicket(); return a new barcode', async () => {
 		renderWithProviders(<App />);
 		await act(async () => {
@@ -48,11 +80,50 @@ describe('getTicket();', () => {
 
 describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () => {
 	describe('unpaid ticket', () => {
+		const handlers = [
+			rest.post('http://localhost:3001/get-ticket', (req, res, ctx) => {
+				currentBarCode++;
+				return res(
+					ctx.json({
+						ticket: {
+							barCode: currentBarCode.toString(),
+							dateOfIssuance: new Date(2020, 2, 10, 1, 0, 0, 0).getTime(),
+						},
+					}),
+					ctx.delay(10)
+				);
+			}),
+		];
+
+		const server = setupServer(...handlers);
+
+		// Enable API mocking before tests.
+		beforeAll(() => server.listen());
+
+		// Reset any runtime request handlers we may add during the tests.
+		afterEach(() => server.resetHandlers());
+
+		// Disable API mocking after the tests are done.
+		afterAll(() => server.close());
+
 		test('the calculated price of a newly issued ticket should be 2', async () => {
+			server.use(
+				rest.post('http://localhost:3001/get-ticket', (req, res, ctx) => {
+					currentBarCode++;
+					return res(
+						ctx.json({
+							ticket: {
+								barCode: currentBarCode.toString(),
+								dateOfIssuance: (new Date()).getTime(),
+							},
+						}),
+						ctx.delay(10)
+					);
+				})
+			);
 			renderWithProviders(<App />);
 			await act(async () => {
 				const barCode = await window.getTicket();
-				await new Promise(resolve => setTimeout(resolve, 100));
 				const price = window.calculatePrice(barCode);
 				expect(price).toBe(2);
 			});
@@ -60,10 +131,7 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 		test('Every started hour costs 2 Eur more: 60 min 00 sec passed: price should be 2', async () => {
 			renderWithProviders(<App />);
 			await act(async () => {
-				const dateNowSpyGetTicket = jest.spyOn(Date, 'now')
-					.mockImplementation(() => new Date(2020, 2, 10, 1, 0, 0, 0).getTime());
 				const barCode = await window.getTicket();
-				dateNowSpyGetTicket.mockRestore();
 				const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
 					.mockImplementation(() => new Date(2020, 2, 10, 2, 0, 0, 0).getTime());
 				const price = window.calculatePrice(barCode);
@@ -74,10 +142,7 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 		test('Every started hour costs 2 Eur more: 60 min 01 sec passed: price should be 4', async () => {
 			renderWithProviders(<App />);
 			await act(async () => {
-				const dateNowSpyGetTicket = jest.spyOn(Date, 'now')
-					.mockImplementation(() => new Date(2020, 2, 10, 1, 0, 0, 0).getTime());
 				const barCode = await window.getTicket();
-				dateNowSpyGetTicket.mockRestore();
 				const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
 					.mockImplementation(() => new Date(2020, 2, 10, 2, 0, 1, 0).getTime());
 				const price = window.calculatePrice(barCode);
@@ -87,20 +152,48 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 		});
 	});
 	describe('payed ticket', () => {
+		const handlers = [
+			rest.post('http://localhost:3001/get-ticket', (req, res, ctx) => {
+				currentBarCode++;
+				return res(
+					ctx.json({
+						ticket: {
+							barCode: currentBarCode.toString(),
+							dateOfIssuance: (new Date(2020, 2, 10, 0, 0, 0, 0)).getTime(),
+						},
+					}),
+					ctx.delay(10)
+				);
+			}),
+			rest.post('http://localhost:3001/pay-ticket', (req, res, ctx) => {
+				return res(
+					ctx.json({
+						paymentDate: (new Date(2020, 2, 10, 3, 0, 0, 0)).getTime(),
+					}),
+					ctx.delay(10)
+				);
+			}),
+		];
+
+		const server = setupServer(...handlers);
+
+		// Enable API mocking before tests.
+		beforeAll(() => server.listen());
+
+		// Reset any runtime request handlers we may add during the tests.
+		afterEach(() => server.resetHandlers());
+
+		// Disable API mocking after the tests are done.
+		afterAll(() => server.close());
+
 		describe('<= 15 min have passed since last payment', () => {
 			describe('one payment', () => {
 				test('15 min 00 sec passed since last payment: the calculated price should be 0 and a payment receipt should be returned',
 					async () => {
 						renderWithProviders(<App />);
 						await act(async () => {
-							const dateNowSpyGetTicket = jest.spyOn(Date, 'now')
-								.mockImplementation(() => new Date(2020, 2, 10, 0, 0, 0, 0).getTime());
 							const barCode = await window.getTicket();
-							dateNowSpyGetTicket.mockRestore();
-							const dateNowSpyPayTicket = jest.spyOn(Date, 'now')
-								.mockImplementation(() => new Date(2020, 2, 10, 3, 0, 0, 0).getTime());
 							await window.payTicket(barCode, PaymentMethod.CASH);
-							dateNowSpyPayTicket.mockRestore();
 							const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
 								.mockImplementation(() => new Date(2020, 2, 10, 3, 15, 0, 0).getTime());
 							const price = window.calculatePrice(barCode);
@@ -121,18 +214,19 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 					async () => {
 						renderWithProviders(<App />);
 						await act(async () => {
-							const dateNowSpyGetTicket = jest.spyOn(Date, 'now')
-								.mockImplementation(() => new Date(2020, 2, 10, 0, 0, 0, 0).getTime());
 							const barCode = await window.getTicket();
-							dateNowSpyGetTicket.mockRestore();
-							const dateNowSpyPayTicket1 = jest.spyOn(Date, 'now')
-								.mockImplementation(() => new Date(2020, 2, 10, 3, 0, 0, 0).getTime());
 							await window.payTicket(barCode, PaymentMethod.CASH);
-							dateNowSpyPayTicket1.mockRestore();
-							const dateNowSpyPayTicket2 = jest.spyOn(Date, 'now')
-								.mockImplementation(() => new Date(2020, 2, 10, 4, 0, 0, 0).getTime());
+							server.use(
+								rest.post('http://localhost:3001/pay-ticket', (req, res, ctx) => {
+									return res(
+										ctx.json({
+											paymentDate: (new Date(2020, 2, 10, 4, 0, 0, 0)).getTime(),
+										}),
+										ctx.delay(10)
+									);
+								})
+							);
 							await window.payTicket(barCode, PaymentMethod.CASH);
-							dateNowSpyPayTicket2.mockRestore();
 							const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
 								.mockImplementation(() => new Date(2020, 2, 10, 4, 15, 0, 0).getTime());
 							const price = window.calculatePrice(barCode);
@@ -154,14 +248,8 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 				test('First hour price since the last payment should be 2', async () => {
 					renderWithProviders(<App />);
 					await act(async () => {
-						const dateNowSpyGetTicket = jest.spyOn(Date, 'now')
-							.mockImplementation(() => new Date(2020, 2, 10, 0, 0, 0, 0).getTime());
 						const barCode = await window.getTicket();
-						dateNowSpyGetTicket.mockRestore();
-						const dateNowSpyPayTicket = jest.spyOn(Date, 'now')
-							.mockImplementation(() => new Date(2020, 2, 10, 3, 0, 0, 0).getTime());
 						await window.payTicket(barCode, PaymentMethod.CASH);
-						dateNowSpyPayTicket.mockRestore();
 						const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
 							.mockImplementation(() => new Date(2020, 2, 10, 3, 15, 1, 0).getTime());
 						const price = window.calculatePrice(barCode);
@@ -172,14 +260,8 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 				test('Every started hour since the last payment costs 2 Eur more: 60 min 00 sec passed', async () => {
 					renderWithProviders(<App />);
 					await act(async () => {
-						const dateNowSpyGetTicket = jest.spyOn(Date, 'now')
-							.mockImplementation(() => new Date(2020, 2, 10, 0, 0, 0, 0).getTime());
 						const barCode = await window.getTicket();
-						dateNowSpyGetTicket.mockRestore();
-						const dateNowSpyPayTicket = jest.spyOn(Date, 'now')
-							.mockImplementation(() => new Date(2020, 2, 10, 3, 0, 0, 0).getTime());
 						await window.payTicket(barCode, PaymentMethod.CASH);
-						dateNowSpyPayTicket.mockRestore();
 						const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
 							.mockImplementation(() => new Date(2020, 2, 10, 4, 0, 0, 0).getTime());
 						const price = window.calculatePrice(barCode);
@@ -190,14 +272,8 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 				test('Every started hour since the last payment costs 2 Eur more: 60 min 01 sec passed', async () => {
 					renderWithProviders(<App />);
 					await act(async () => {
-						const dateNowSpyGetTicket = jest.spyOn(Date, 'now')
-							.mockImplementation(() => new Date(2020, 2, 10, 0, 0, 0, 0).getTime());
 						const barCode = await window.getTicket();
-						dateNowSpyGetTicket.mockRestore();
-						const dateNowSpyPayTicket = jest.spyOn(Date, 'now')
-							.mockImplementation(() => new Date(2020, 2, 10, 3, 0, 0, 0).getTime());
 						await window.payTicket(barCode, PaymentMethod.CASH);
-						dateNowSpyPayTicket.mockRestore();
 						const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
 							.mockImplementation(() => new Date(2020, 2, 10, 4, 0, 1, 0).getTime());
 						const price = window.calculatePrice(barCode);
@@ -210,18 +286,19 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 				test('First hour price since the last payment should be 2', async () => {
 					renderWithProviders(<App />);
 					await act(async () => {
-						const dateNowSpyGetTicket = jest.spyOn(Date, 'now')
-							.mockImplementation(() => new Date(2020, 2, 10, 0, 0, 0, 0).getTime());
 						const barCode = await window.getTicket();
-						dateNowSpyGetTicket.mockRestore();
-						const dateNowSpyPayTicket1 = jest.spyOn(Date, 'now')
-							.mockImplementation(() => new Date(2020, 2, 10, 3, 0, 0, 0).getTime());
 						await window.payTicket(barCode, PaymentMethod.CASH);
-						dateNowSpyPayTicket1.mockRestore();
-						const dateNowSpyPayTicket2 = jest.spyOn(Date, 'now')
-							.mockImplementation(() => new Date(2020, 2, 10, 5, 0, 0, 0).getTime());
+						server.use(
+							rest.post('http://localhost:3001/pay-ticket', (req, res, ctx) => {
+								return res(
+									ctx.json({
+										paymentDate: (new Date(2020, 2, 10, 5, 0, 0, 0)).getTime(),
+									}),
+									ctx.delay(10)
+								);
+							})
+						);
 						await window.payTicket(barCode, PaymentMethod.CASH);
-						dateNowSpyPayTicket2.mockRestore();
 						const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
 							.mockImplementation(() => new Date(2020, 2, 10, 5, 15, 1, 0).getTime());
 						const price = window.calculatePrice(barCode);
@@ -232,18 +309,19 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 				test('Every started hour since the last payment costs 2 Eur more: 60 min 00 sec passed', async () => {
 					renderWithProviders(<App />);
 					await act(async () => {
-						const dateNowSpyGetTicket = jest.spyOn(Date, 'now')
-							.mockImplementation(() => new Date(2020, 2, 10, 0, 0, 0, 0).getTime());
 						const barCode = await window.getTicket();
-						dateNowSpyGetTicket.mockRestore();
-						const dateNowSpyPayTicket1 = jest.spyOn(Date, 'now')
-							.mockImplementation(() => new Date(2020, 2, 10, 3, 0, 0, 0).getTime());
 						await window.payTicket(barCode, PaymentMethod.CASH);
-						dateNowSpyPayTicket1.mockRestore();
-						const dateNowSpyPayTicket2 = jest.spyOn(Date, 'now')
-							.mockImplementation(() => new Date(2020, 2, 10, 5, 0, 0, 0).getTime());
+						server.use(
+							rest.post('http://localhost:3001/pay-ticket', (req, res, ctx) => {
+								return res(
+									ctx.json({
+										paymentDate: (new Date(2020, 2, 10, 5, 0, 0, 0)).getTime(),
+									}),
+									ctx.delay(10)
+								);
+							})
+						);
 						await window.payTicket(barCode, PaymentMethod.CASH);
-						dateNowSpyPayTicket2.mockRestore();
 						const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
 							.mockImplementation(() => new Date(2020, 2, 10, 6, 0, 0, 0).getTime());
 						const price = window.calculatePrice(barCode);
@@ -254,18 +332,19 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 				test('Every started hour since the last payment costs 2 Eur more: 60 min 01 sec passed', async () => {
 					renderWithProviders(<App />);
 					await act(async () => {
-						const dateNowSpyGetTicket = jest.spyOn(Date, 'now')
-							.mockImplementation(() => new Date(2020, 2, 10, 0, 0, 0, 0).getTime());
 						const barCode = await window.getTicket();
-						dateNowSpyGetTicket.mockRestore();
-						const dateNowSpyPayTicket1 = jest.spyOn(Date, 'now')
-							.mockImplementation(() => new Date(2020, 2, 10, 3, 0, 0, 0).getTime());
 						await window.payTicket(barCode, PaymentMethod.CASH);
-						dateNowSpyPayTicket1.mockRestore();
-						const dateNowSpyPayTicket2 = jest.spyOn(Date, 'now')
-							.mockImplementation(() => new Date(2020, 2, 10, 5, 0, 0, 0).getTime());
+						server.use(
+							rest.post('http://localhost:3001/pay-ticket', (req, res, ctx) => {
+								return res(
+									ctx.json({
+										paymentDate: (new Date(2020, 2, 10, 5, 0, 0, 0)).getTime(),
+									}),
+									ctx.delay(10)
+								);
+							})
+						);
 						await window.payTicket(barCode, PaymentMethod.CASH);
-						dateNowSpyPayTicket2.mockRestore();
 						const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
 							.mockImplementation(() => new Date(2020, 2, 10, 6, 0, 1, 0).getTime());
 						const price = window.calculatePrice(barCode);
@@ -279,6 +358,40 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 });
 
 describe('getTicketState(barcode); and payTicket(barcode, paymentMethod);', () => {
+	const handlers = [
+		rest.post('http://localhost:3001/get-ticket', (req, res, ctx) => {
+			currentBarCode++;
+			return res(
+				ctx.json({
+					ticket: {
+						barCode: currentBarCode.toString(),
+						dateOfIssuance: (new Date()).getTime(),
+					},
+				}),
+				ctx.delay(10)
+			);
+		}),
+		rest.post('http://localhost:3001/pay-ticket', (req, res, ctx) => {
+			return res(
+				ctx.json({
+					paymentDate: (new Date()).getTime(),
+				}),
+				ctx.delay(10)
+			);
+		}),
+	];
+
+	const server = setupServer(...handlers);
+
+	// Enable API mocking before tests.
+	beforeAll(() => server.listen());
+
+	// Reset any runtime request handlers we may add during the tests.
+	afterEach(() => server.resetHandlers());
+
+	// Disable API mocking after the tests are done.
+	afterAll(() => server.close());
+
 	test('the ticket state of a newly issued ticket should be UNPAID', async () => {
 		renderWithProviders(<App />);
 		await act(async () => {
@@ -302,14 +415,32 @@ describe('getTicketState(barcode); and payTicket(barcode, paymentMethod);', () =
 			async () => {
 				renderWithProviders(<App />);
 				await act(async () => {
-					const dateNowSpyGetTicket = jest.spyOn(Date, 'now')
-						.mockImplementation(() => new Date(2020, 2, 10, 1, 0, 0, 0).getTime());
+					server.use(
+						rest.post('http://localhost:3001/get-ticket', (req, res, ctx) => {
+							currentBarCode++;
+							return res(
+								ctx.json({
+									ticket: {
+										barCode: currentBarCode.toString(),
+										dateOfIssuance: (new Date(2020, 2, 10, 1, 0, 0, 0)).getTime(),
+									},
+								}),
+								ctx.delay(10)
+							);
+						})
+					);
 					const barCode = await window.getTicket();
-					dateNowSpyGetTicket.mockRestore();
-					const dateNowSpyPayTicket = jest.spyOn(Date, 'now')
-						.mockImplementation(() => new Date(2020, 2, 10, 3, 0, 0, 0).getTime());
+					server.use(
+						rest.post('http://localhost:3001/pay-ticket', (req, res, ctx) => {
+							return res(
+								ctx.json({
+									paymentDate: (new Date(2020, 2, 10, 3, 0, 0, 0)).getTime(),
+								}),
+								ctx.delay(10)
+							);
+						})
+					);
 					await window.payTicket(barCode, PaymentMethod.CASH);
-					dateNowSpyPayTicket.mockRestore();
 					const dateNowSpyGetTicketState = jest.spyOn(Date, 'now')
 						.mockImplementation(() => new Date(2020, 2, 10, 3, 15, 0, 0).getTime());
 					const ticketState = window.getTicketState(barCode);
@@ -321,14 +452,32 @@ describe('getTicketState(barcode); and payTicket(barcode, paymentMethod);', () =
 			async () => {
 				renderWithProviders(<App />);
 				await act(async () => {
-					const dateNowSpyGetTicket = jest.spyOn(Date, 'now')
-						.mockImplementation(() => new Date(2020, 2, 10, 1, 0, 0, 0).getTime());
+					server.use(
+						rest.post('http://localhost:3001/get-ticket', (req, res, ctx) => {
+							currentBarCode++;
+							return res(
+								ctx.json({
+									ticket: {
+										barCode: currentBarCode.toString(),
+										dateOfIssuance: (new Date(2020, 2, 10, 1, 0, 0, 0)).getTime(),
+									},
+								}),
+								ctx.delay(10)
+							);
+						})
+					);
 					const barCode = await window.getTicket();
-					dateNowSpyGetTicket.mockRestore();
-					const dateNowSpyPayTicket = jest.spyOn(Date, 'now')
-						.mockImplementation(() => new Date(2020, 2, 10, 3, 0, 0, 0).getTime());
+					server.use(
+						rest.post('http://localhost:3001/pay-ticket', (req, res, ctx) => {
+							return res(
+								ctx.json({
+									paymentDate: (new Date(2020, 2, 10, 3, 0, 0, 0)).getTime(),
+								}),
+								ctx.delay(10)
+							);
+						})
+					);
 					await window.payTicket(barCode, PaymentMethod.CASH);
-					dateNowSpyPayTicket.mockRestore();
 					const dateNowSpyGetTicketState = jest.spyOn(Date, 'now')
 						.mockImplementation(() => new Date(2020, 2, 10, 3, 15, 1, 0).getTime());
 					const ticketState = window.getTicketState(barCode);
@@ -353,18 +502,43 @@ describe('getTicketState(barcode); and payTicket(barcode, paymentMethod);', () =
 			async () => {
 				renderWithProviders(<App />);
 				await act(async () => {
-					const dateNowSpyGetTicket = jest.spyOn(Date, 'now')
-						.mockImplementation(() => new Date(2020, 2, 10, 1, 0, 0, 0).getTime());
+					server.use(
+						rest.post('http://localhost:3001/get-ticket', (req, res, ctx) => {
+							currentBarCode++;
+							return res(
+								ctx.json({
+									ticket: {
+										barCode: currentBarCode.toString(),
+										dateOfIssuance: (new Date(2020, 2, 10, 1, 0, 0, 0)).getTime(),
+									},
+								}),
+								ctx.delay(10)
+							);
+						})
+					);
 					const barCode = await window.getTicket();
-					dateNowSpyGetTicket.mockRestore();
-					const dateNowSpyPayTicket1 = jest.spyOn(Date, 'now')
-						.mockImplementation(() => new Date(2020, 2, 10, 3, 0, 0, 0).getTime());
+					server.use(
+						rest.post('http://localhost:3001/pay-ticket', (req, res, ctx) => {
+							return res(
+								ctx.json({
+									paymentDate: (new Date(2020, 2, 10, 3, 0, 0, 0)).getTime(),
+								}),
+								ctx.delay(10)
+							);
+						})
+					);
 					await window.payTicket(barCode, PaymentMethod.CASH);
-					dateNowSpyPayTicket1.mockRestore();
-					const dateNowSpyPayTicket2 = jest.spyOn(Date, 'now')
-						.mockImplementation(() => new Date(2020, 2, 10, 5, 0, 0, 0).getTime());
+					server.use(
+						rest.post('http://localhost:3001/pay-ticket', (req, res, ctx) => {
+							return res(
+								ctx.json({
+									paymentDate: (new Date(2020, 2, 10, 5, 0, 0, 0)).getTime(),
+								}),
+								ctx.delay(10)
+							);
+						})
+					);
 					await window.payTicket(barCode, PaymentMethod.CASH);
-					dateNowSpyPayTicket2.mockRestore();
 					const dateNowSpyGetTicketState = jest.spyOn(Date, 'now')
 						.mockImplementation(() => new Date(2020, 2, 10, 5, 15, 0, 0).getTime());
 					const ticketState = window.getTicketState(barCode);
@@ -376,18 +550,43 @@ describe('getTicketState(barcode); and payTicket(barcode, paymentMethod);', () =
 			async () => {
 				renderWithProviders(<App />);
 				await act(async () => {
-					const dateNowSpyGetTicket = jest.spyOn(Date, 'now')
-						.mockImplementation(() => new Date(2020, 2, 10, 1, 0, 0, 0).getTime());
+					server.use(
+						rest.post('http://localhost:3001/get-ticket', (req, res, ctx) => {
+							currentBarCode++;
+							return res(
+								ctx.json({
+									ticket: {
+										barCode: currentBarCode.toString(),
+										dateOfIssuance: (new Date(2020, 2, 10, 1, 0, 0, 0)).getTime(),
+									},
+								}),
+								ctx.delay(10)
+							);
+						})
+					);
 					const barCode = await window.getTicket();
-					dateNowSpyGetTicket.mockRestore();
-					const dateNowSpyPayTicket1 = jest.spyOn(Date, 'now')
-						.mockImplementation(() => new Date(2020, 2, 10, 3, 0, 0, 0).getTime());
+					server.use(
+						rest.post('http://localhost:3001/pay-ticket', (req, res, ctx) => {
+							return res(
+								ctx.json({
+									paymentDate: (new Date(2020, 2, 10, 3, 0, 0, 0)).getTime(),
+								}),
+								ctx.delay(10)
+							);
+						})
+					);
 					await window.payTicket(barCode, PaymentMethod.CASH);
-					dateNowSpyPayTicket1.mockRestore();
-					const dateNowSpyPayTicket2 = jest.spyOn(Date, 'now')
-						.mockImplementation(() => new Date(2020, 2, 10, 5, 0, 0, 0).getTime());
+					server.use(
+						rest.post('http://localhost:3001/pay-ticket', (req, res, ctx) => {
+							return res(
+								ctx.json({
+									paymentDate: (new Date(2020, 2, 10, 5, 0, 0, 0)).getTime(),
+								}),
+								ctx.delay(10)
+							);
+						})
+					);
 					await window.payTicket(barCode, PaymentMethod.CASH);
-					dateNowSpyPayTicket2.mockRestore();
 					const dateNowSpyGetTicketState = jest.spyOn(Date, 'now')
 						.mockImplementation(() => new Date(2020, 2, 10, 5, 15, 1, 0).getTime());
 					const ticketState = window.getTicketState(barCode);
@@ -399,6 +598,32 @@ describe('getTicketState(barcode); and payTicket(barcode, paymentMethod);', () =
 });
 
 describe('getFreeSpaces();', () => {
+	const handlers = [
+		rest.post('http://localhost:3001/get-ticket', (req, res, ctx) => {
+			currentBarCode++;
+			return res(
+				ctx.json({
+					ticket: {
+						barCode: currentBarCode.toString(),
+						dateOfIssuance: (new Date()).getTime(),
+					},
+				}),
+				ctx.delay(10)
+			);
+		}),
+	];
+
+	const server = setupServer(...handlers);
+
+	// Enable API mocking before tests.
+	beforeAll(() => server.listen());
+
+	// Reset any runtime request handlers we may add during the tests.
+	afterEach(() => server.resetHandlers());
+
+	// Disable API mocking after the tests are done.
+	afterAll(() => server.close());
+
 	test('there should be PARKING_CAPACITY free spaces initially', () => {
 		renderWithProviders(<App />);
 		act(() => {
@@ -432,5 +657,5 @@ describe('getFreeSpaces();', () => {
 			const freeSpaces = window.getFreeSpaces();
 			expect(freeSpaces).toBe(0);
 		});
-	}, 120000);
+	});
 });

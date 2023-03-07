@@ -15,7 +15,7 @@ import { useAppDispatch } from './app/hooks';
 import { useMemo } from 'react';
 
 // types
-import { BarCode, PaymentMethod } from './features/parking-garage/parkingGarageSlice';
+import { BarCode, PaymentMethod, CalculatePricePaidTicketReturnValue } from './features/parking-garage/parkingGarageSlice';
 
 // utils
 import { bindActionCreators } from 'redux';
@@ -23,7 +23,7 @@ import { bindActionCreators } from 'redux';
 declare global {
 	interface Window {
 		getTicket: () => Promise<string>;
-		calculatePrice: typeof calculatePrice;
+		calculatePrice: (barCode: string) => CalculatePricePaidTicketReturnValue | number;
 		payTicket: (barCode: BarCode, paymentMethod: PaymentMethod) => void;
 		getTicketState: typeof getTicketState;
 		getFreeSpaces: typeof getFreeSpaces;
@@ -37,11 +37,6 @@ function App() {
 		const ticket = await dispatch(getTicketAsync()).unwrap();
 		return ticket.barCode;
 	};
-
-	const boundCalculatePrice = useMemo(
-		() => bindActionCreators(calculatePrice, dispatch),
-		[dispatch]
-	);
 
 	const payTicket = async (barCode: BarCode, paymentMethod: PaymentMethod) => {
 		await dispatch(payTicketAsync({ barCode, paymentMethod }));
@@ -58,7 +53,15 @@ function App() {
 	);
 
 	window.getTicket = getTicket;
-	window.calculatePrice = boundCalculatePrice;
+	window.calculatePrice = (barCode: string) => {
+		const price = dispatch(calculatePrice(barCode));
+		if (price.paymentReceipt) {
+			return price;
+		}
+		else {
+			return price.ticketPrice;
+		}
+	};
 	window.payTicket = payTicket;
 	window.getTicketState = boundGetTicketState;
 	window.getFreeSpaces = boundGetFreeSpaces;

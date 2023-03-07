@@ -8,6 +8,11 @@ The coding challenge description can be found within the following file.
 docs/Platogo Developer Challenge - Client - with provided Template.pdf
 ```
 
+## Compile and start
+
+1. Start the backend from the `platogo-coding-challange-backend` repo.
+2. Run `npm start`
+
 ---
 
 # Getting Started with Create React App

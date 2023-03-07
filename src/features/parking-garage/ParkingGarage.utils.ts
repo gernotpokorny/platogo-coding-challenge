@@ -4,13 +4,6 @@ import { TicketState } from './parkingGarageSlice';
 // types
 import { Ticket } from './parkingGarageSlice';
 
-// utils
-import { generateRandomNumber } from '../../shared/utils/randomness-utils';
-
-export const generateBarCode = () => {
-	return generateRandomNumber(16);
-};
-
 /**
  * `date` can be for example the date of the issuance of the ticket or the date of the last payment which happened before the current payment.
  * `paymentDate` is the current payment.

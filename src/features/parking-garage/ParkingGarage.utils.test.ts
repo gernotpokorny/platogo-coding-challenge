@@ -2,13 +2,7 @@
 import { PaymentMethod, TicketState } from './parkingGarageSlice';
 
 // utils
-import { generateBarCode, calculateTicketPrice, calculateTicketState } from './ParkingGarage.utils';
-
-test('generateBarCode()', () => {
-	const ticket1 = generateBarCode();
-	const ticket2 = generateBarCode();
-	expect(ticket1).not.toBe(ticket2);
-});
+import { calculateTicketPrice, calculateTicketState } from './ParkingGarage.utils';
 
 test('calculateTicketPrice() exactly same date', () => {
 	const issueDate = new Date(2023, 1, 1, 2, 0, 0);
@@ -88,7 +82,7 @@ test('calculateTicketPrice() 60 minutes 1 seconds next day', () => {
 });
 
 test('calculateTicketState() 15min 01 seconds passed', () => {
-	const barCode = generateBarCode();
+	const barCode = '1223352031944154';
 	const dateOfIssuance = new Date(2023, 1, 1, 2, 0, 0);
 	const paymentDate = new Date(2023, 1, 1, 3, 0, 0);
 	const ticketState = calculateTicketState(
@@ -101,6 +95,7 @@ test('calculateTicketState() 15min 01 seconds passed', () => {
 					paymentMethod: PaymentMethod.CREDIT_CARD,
 				},
 			],
+			ticketPrice: 2,
 		},
 		new Date(2023, 1, 1, 3, 15, 1)
 	);
@@ -108,7 +103,7 @@ test('calculateTicketState() 15min 01 seconds passed', () => {
 });
 
 test('calculateTicketState() 15 min 00 seconds passed', () => {
-	const barCode = generateBarCode();
+	const barCode = '1223352031944154';
 	const dateOfIssuance = new Date(2023, 1, 1, 2, 0, 0);
 	const paymentDate = new Date(2023, 1, 1, 3, 0, 0);
 	const ticketState = calculateTicketState(
@@ -121,6 +116,7 @@ test('calculateTicketState() 15 min 00 seconds passed', () => {
 					paymentMethod: PaymentMethod.CREDIT_CARD,
 				},
 			],
+			ticketPrice: 2,
 		},
 		new Date(2023, 1, 1, 3, 15, 0)
 	);
