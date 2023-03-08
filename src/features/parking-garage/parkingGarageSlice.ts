@@ -1,5 +1,5 @@
 // api
-import { getTicket, payTicket, checkoutSuccess } from './parkingGarageAPI';
+import { getTicket, payTicket, getTicketState, checkoutSuccess } from './parkingGarageAPI';
 
 // types
 import { RootState, AppThunk } from '../../app/store';
@@ -8,12 +8,13 @@ import { PayloadAction } from '@reduxjs/toolkit';
 import {
 	GetTicketResponseSuccess,
 	PayTicketResponseSuccess,
+	GetTicketStateResponseSuccess,
 	CheckoutSuccessResponseSuccess,
 } from './parkingGarageAPI';
 
 // utils
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { calculateTicketPrice, getFormattedPaymentDate, calculateTicketState } from './ParkingGarage.utils';
+import { calculateTicketPrice, getFormattedPaymentDate } from './ParkingGarage.utils';
 
 export const PARKING_CAPACITY = 54;
 
@@ -278,7 +279,7 @@ export const leaveAsync = createAsyncThunk<
 	) => {
 		const ticket = selectTicketWithBarCode(barCode)(getState());
 		if (ticket) {
-			const ticketState = dispatch(getTicketState(barCode));
+			const ticketState = await dispatch(getTicketStateAsync({ barCode })).unwrap();
 			if (ticketState === TicketState.UNPAID && ticket.payments) {
 				dispatch(setShowAre15MinutesPassedSincePaymentMessage({ spaceNumber, value: true }));
 			}
@@ -286,7 +287,7 @@ export const leaveAsync = createAsyncThunk<
 				dispatch(setShowAre15MinutesPassedSincePaymentMessage({ spaceNumber, value: false }));
 			}
 			if (ticketState === TicketState.UNPAID) {
-				const price = dispatch(calculatePrice(barCode));
+				const price = await dispatch(calculatePriceAsync({ barCode })).unwrap();
 				dispatch(setTicketPrice({ ticketPrice: price.ticketPrice, barCode }));
 				if (price.paymentReceipt) {
 					dispatch(setPaymentReceipt({ paymentReceipt: price.paymentReceipt, barCode }));
@@ -299,7 +300,7 @@ export const leaveAsync = createAsyncThunk<
 					await resetPayTicketDialog();
 				}
 				await dispatch(payTicketAsync({ barCode: barCode, paymentMethod })).unwrap();
-				const priceAfterPayment = dispatch(calculatePrice(barCode));
+				const priceAfterPayment = await dispatch(calculatePriceAsync({ barCode })).unwrap();
 				dispatch(setTicketPrice({ ticketPrice: priceAfterPayment.ticketPrice, barCode }));
 				if (priceAfterPayment.paymentReceipt) {
 					dispatch(setPaymentReceipt({ paymentReceipt: priceAfterPayment.paymentReceipt, barCode }));
@@ -316,10 +317,10 @@ export const leaveAsync = createAsyncThunk<
 			}
 			const payedTicket = selectTicketWithBarCode(barCode)(getState());
 			if (payedTicket) {
-				const ticketStatePayedTicket = dispatch(getTicketState(barCode));
+				const ticketStatePayedTicket = await dispatch(getTicketStateAsync({ barCode })).unwrap();
 				if (ticketStatePayedTicket === TicketState.PAID) {
 					await dispatch(setIsGoodByeSnackbarOpen(true));
-					const checkoutSuccessResponse = await checkoutSuccess(payedTicket);
+					const checkoutSuccessResponse = await checkoutSuccess(payedTicket.barCode);
 					if (checkoutSuccessResponse.ok) {
 						const checkoutSuccessData = await checkoutSuccessResponse.json();
 						if ((checkoutSuccessData as CheckoutSuccessResponseSuccess).success) {
@@ -355,11 +356,16 @@ export interface CalculatePricePaidTicketReturnValue {
 	paymentReceipt?: PaymentReceipt;
 }
 
-export const calculatePrice = (barCode: BarCode): AppThunk<CalculatePricePaidTicketReturnValue> =>
-	(dispatch, getState) => {
+export const calculatePriceAsync = createAsyncThunk<
+	CalculatePricePaidTicketReturnValue,
+	{ barCode: string; },
+	{ state: RootState }
+>(
+	'parkingGarage/getTicketState',
+	async ({ barCode }, { getState, dispatch }) => {
 		const ticket = selectTicketWithBarCode(barCode)(getState());
 		if (ticket) {
-			const ticketState = dispatch(getTicketState(ticket.barCode));
+			const ticketState = await dispatch(getTicketStateAsync({ barCode })).unwrap();
 			if (ticket.payments && ticket.payments.length > 0 && ticketState === TicketState.PAID) {
 				if (ticket.payments.length === 1) {
 					const issueDate = new Date(ticket.dateOfIssuance);
@@ -415,25 +421,26 @@ export const calculatePrice = (barCode: BarCode): AppThunk<CalculatePricePaidTic
 		else {
 			throw new Error('Ticket cannot be found!');
 		}
-	};
+	}
+);
 
-export const getTicketState = (barCode: BarCode): AppThunk<TicketState> =>
-	(dispatch, getState) => {
-		const ticket = selectTicketWithBarCode(barCode)(getState());
-		if (ticket) {
-			if (ticket.payments && ticket.payments.length > 0) {
-				const currentDate = new Date(Date.now()); // Date.now() gets mocked within the test!
-				const ticketState = calculateTicketState(ticket, currentDate);
-				return ticketState;
-			}
-			else {
-				return TicketState.UNPAID;
-			}
+export const getTicketStateAsync = createAsyncThunk<
+	TicketState,
+	{ barCode: string; },
+	{ state: RootState }
+>(
+	'parkingGarage/getTicketState',
+	async ({ barCode }) => {
+		const response = await getTicketState(barCode);
+		if (response.ok) {
+			const data = await response.json();
+			return (data as GetTicketStateResponseSuccess).ticketState;
 		}
 		else {
-			throw new Error('Ticket cannot be found!');
+			throw new Error(response.statusText);
 		}
-	};
+	}
+);
 
 export const getFreeSpaces = (): AppThunk<number> =>
 	(dispatch, getState) => {

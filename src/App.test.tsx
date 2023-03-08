@@ -4,7 +4,7 @@ import React from 'react';
 import App from './App';
 
 // constants
-import { PaymentMethod, PARKING_CAPACITY, ErrorCode } from './features/parking-garage/parkingGarageSlice';
+import { PaymentMethod, PARKING_CAPACITY, ErrorCode, TicketState } from './features/parking-garage/parkingGarageSlice';
 
 // mocks
 import { rest } from 'msw';
@@ -93,6 +93,14 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 					ctx.delay(10)
 				);
 			}),
+			rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
+				return res(
+					ctx.json({
+						ticketState: TicketState.UNPAID,
+					}),
+					ctx.delay(10)
+				);
+			}),
 		];
 
 		const server = setupServer(...handlers);
@@ -124,7 +132,7 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 			renderWithProviders(<App />);
 			await act(async () => {
 				const barCode = await window.getTicket();
-				const price = window.calculatePrice(barCode);
+				const price = await window.calculatePrice(barCode);
 				expect(price).toBe(2);
 			});
 		});
@@ -134,7 +142,7 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 				const barCode = await window.getTicket();
 				const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
 					.mockImplementation(() => new Date(2020, 2, 10, 2, 0, 0, 0).getTime());
-				const price = window.calculatePrice(barCode);
+				const price = await window.calculatePrice(barCode);
 				dateNowSpyCalculatePrice.mockRestore();
 				expect(price).toBe(2);
 			});
@@ -145,7 +153,7 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 				const barCode = await window.getTicket();
 				const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
 					.mockImplementation(() => new Date(2020, 2, 10, 2, 0, 1, 0).getTime());
-				const price = window.calculatePrice(barCode);
+				const price = await window.calculatePrice(barCode);
 				dateNowSpyCalculatePrice.mockRestore();
 				expect(price).toBe(4);
 			});
@@ -194,9 +202,19 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 						await act(async () => {
 							const barCode = await window.getTicket();
 							await window.payTicket(barCode, PaymentMethod.CASH);
+							server.use(
+								rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
+									return res(
+										ctx.json({
+											ticketState: TicketState.PAID,
+										}),
+										ctx.delay(10)
+									);
+								})
+							);
 							const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
 								.mockImplementation(() => new Date(2020, 2, 10, 3, 15, 0, 0).getTime());
-							const price = window.calculatePrice(barCode);
+							const price = await window.calculatePrice(barCode);
 							dateNowSpyCalculatePrice.mockRestore();
 							expect(Object.prototype.hasOwnProperty.call(price, 'ticketPrice')).toBe(true);
 							expect(Object.prototype.hasOwnProperty.call(price, 'paymentReceipt')).toBe(true);
@@ -227,9 +245,19 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 								})
 							);
 							await window.payTicket(barCode, PaymentMethod.CASH);
+							server.use(
+								rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
+									return res(
+										ctx.json({
+											ticketState: TicketState.PAID,
+										}),
+										ctx.delay(10)
+									);
+								})
+							);
 							const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
 								.mockImplementation(() => new Date(2020, 2, 10, 4, 15, 0, 0).getTime());
-							const price = window.calculatePrice(barCode);
+							const price = await window.calculatePrice(barCode);
 							dateNowSpyCalculatePrice.mockRestore();
 							expect(Object.prototype.hasOwnProperty.call(price, 'ticketPrice')).toBe(true);
 							expect(Object.prototype.hasOwnProperty.call(price, 'paymentReceipt')).toBe(true);
@@ -250,9 +278,19 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 					await act(async () => {
 						const barCode = await window.getTicket();
 						await window.payTicket(barCode, PaymentMethod.CASH);
+						server.use(
+							rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
+								return res(
+									ctx.json({
+										ticketState: TicketState.UNPAID,
+									}),
+									ctx.delay(10)
+								);
+							})
+						);
 						const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
 							.mockImplementation(() => new Date(2020, 2, 10, 3, 15, 1, 0).getTime());
-						const price = window.calculatePrice(barCode);
+						const price = await window.calculatePrice(barCode);
 						dateNowSpyCalculatePrice.mockRestore();
 						expect(price).toBe(2);
 					});
@@ -262,9 +300,19 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 					await act(async () => {
 						const barCode = await window.getTicket();
 						await window.payTicket(barCode, PaymentMethod.CASH);
+						server.use(
+							rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
+								return res(
+									ctx.json({
+										ticketState: TicketState.UNPAID,
+									}),
+									ctx.delay(10)
+								);
+							})
+						);
 						const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
 							.mockImplementation(() => new Date(2020, 2, 10, 4, 0, 0, 0).getTime());
-						const price = window.calculatePrice(barCode);
+						const price = await window.calculatePrice(barCode);
 						dateNowSpyCalculatePrice.mockRestore();
 						expect(price).toBe(2);
 					});
@@ -274,9 +322,19 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 					await act(async () => {
 						const barCode = await window.getTicket();
 						await window.payTicket(barCode, PaymentMethod.CASH);
+						server.use(
+							rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
+								return res(
+									ctx.json({
+										ticketState: TicketState.UNPAID,
+									}),
+									ctx.delay(10)
+								);
+							})
+						);
 						const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
 							.mockImplementation(() => new Date(2020, 2, 10, 4, 0, 1, 0).getTime());
-						const price = window.calculatePrice(barCode);
+						const price = await window.calculatePrice(barCode);
 						dateNowSpyCalculatePrice.mockRestore();
 						expect(price).toBe(4);
 					});
@@ -299,9 +357,19 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 							})
 						);
 						await window.payTicket(barCode, PaymentMethod.CASH);
+						server.use(
+							rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
+								return res(
+									ctx.json({
+										ticketState: TicketState.UNPAID,
+									}),
+									ctx.delay(10)
+								);
+							})
+						);
 						const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
 							.mockImplementation(() => new Date(2020, 2, 10, 5, 15, 1, 0).getTime());
-						const price = window.calculatePrice(barCode);
+						const price = await window.calculatePrice(barCode);
 						dateNowSpyCalculatePrice.mockRestore();
 						expect(price).toBe(2);
 					});
@@ -322,9 +390,19 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 							})
 						);
 						await window.payTicket(barCode, PaymentMethod.CASH);
+						server.use(
+							rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
+								return res(
+									ctx.json({
+										ticketState: TicketState.UNPAID,
+									}),
+									ctx.delay(10)
+								);
+							})
+						);
 						const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
 							.mockImplementation(() => new Date(2020, 2, 10, 6, 0, 0, 0).getTime());
-						const price = window.calculatePrice(barCode);
+						const price = await window.calculatePrice(barCode);
 						dateNowSpyCalculatePrice.mockRestore();
 						expect(price).toBe(2);
 					});
@@ -345,9 +423,19 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 							})
 						);
 						await window.payTicket(barCode, PaymentMethod.CASH);
+						server.use(
+							rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
+								return res(
+									ctx.json({
+										ticketState: TicketState.UNPAID,
+									}),
+									ctx.delay(10)
+								);
+							})
+						);
 						const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
 							.mockImplementation(() => new Date(2020, 2, 10, 6, 0, 1, 0).getTime());
-						const price = window.calculatePrice(barCode);
+						const price = await window.calculatePrice(barCode);
 						dateNowSpyCalculatePrice.mockRestore();
 						expect(price).toBe(4);
 					});
@@ -396,7 +484,17 @@ describe('getTicketState(barcode); and payTicket(barcode, paymentMethod);', () =
 		renderWithProviders(<App />);
 		await act(async () => {
 			const barCode = await window.getTicket();
-			const ticketState = window.getTicketState(barCode);
+			server.use(
+				rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
+					return res(
+						ctx.json({
+							ticketState: TicketState.UNPAID,
+						}),
+						ctx.delay(10)
+					);
+				})
+			);
+			const ticketState = await window.getTicketState(barCode);
 			expect(ticketState).toBe('UNPAID');
 		});
 	});
@@ -407,7 +505,17 @@ describe('getTicketState(barcode); and payTicket(barcode, paymentMethod);', () =
 				await act(async () => {
 					const barCode = await window.getTicket();
 					await window.payTicket(barCode, PaymentMethod.CASH);
-					const ticketState = window.getTicketState(barCode);
+					server.use(
+						rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
+							return res(
+								ctx.json({
+									ticketState: TicketState.PAID,
+								}),
+								ctx.delay(10)
+							);
+						})
+					);
+					const ticketState = await window.getTicketState(barCode);
 					expect(ticketState).toBe('PAID');
 				});
 			});
@@ -441,10 +549,17 @@ describe('getTicketState(barcode); and payTicket(barcode, paymentMethod);', () =
 						})
 					);
 					await window.payTicket(barCode, PaymentMethod.CASH);
-					const dateNowSpyGetTicketState = jest.spyOn(Date, 'now')
-						.mockImplementation(() => new Date(2020, 2, 10, 3, 15, 0, 0).getTime());
-					const ticketState = window.getTicketState(barCode);
-					dateNowSpyGetTicketState.mockRestore();
+					server.use(
+						rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
+							return res(
+								ctx.json({
+									ticketState: TicketState.PAID,
+								}),
+								ctx.delay(10)
+							);
+						})
+					);
+					const ticketState = await window.getTicketState(barCode);
 					expect(ticketState).toBe('PAID');
 				});
 			});
@@ -478,10 +593,17 @@ describe('getTicketState(barcode); and payTicket(barcode, paymentMethod);', () =
 						})
 					);
 					await window.payTicket(barCode, PaymentMethod.CASH);
-					const dateNowSpyGetTicketState = jest.spyOn(Date, 'now')
-						.mockImplementation(() => new Date(2020, 2, 10, 3, 15, 1, 0).getTime());
-					const ticketState = window.getTicketState(barCode);
-					dateNowSpyGetTicketState.mockRestore();
+					server.use(
+						rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
+							return res(
+								ctx.json({
+									ticketState: TicketState.UNPAID,
+								}),
+								ctx.delay(10)
+							);
+						})
+					);
+					const ticketState = await window.getTicketState(barCode);
 					expect(ticketState).toBe('UNPAID');
 				});
 			});
@@ -494,7 +616,17 @@ describe('getTicketState(barcode); and payTicket(barcode, paymentMethod);', () =
 					const barCode = await window.getTicket();
 					await window.payTicket(barCode, PaymentMethod.CASH);
 					await window.payTicket(barCode, PaymentMethod.CASH);
-					const ticketState = window.getTicketState(barCode);
+					server.use(
+						rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
+							return res(
+								ctx.json({
+									ticketState: TicketState.PAID,
+								}),
+								ctx.delay(10)
+							);
+						})
+					);
+					const ticketState = await window.getTicketState(barCode);
 					expect(ticketState).toBe('PAID');
 				});
 			});
@@ -539,10 +671,17 @@ describe('getTicketState(barcode); and payTicket(barcode, paymentMethod);', () =
 						})
 					);
 					await window.payTicket(barCode, PaymentMethod.CASH);
-					const dateNowSpyGetTicketState = jest.spyOn(Date, 'now')
-						.mockImplementation(() => new Date(2020, 2, 10, 5, 15, 0, 0).getTime());
-					const ticketState = window.getTicketState(barCode);
-					dateNowSpyGetTicketState.mockRestore();
+					server.use(
+						rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
+							return res(
+								ctx.json({
+									ticketState: TicketState.PAID,
+								}),
+								ctx.delay(10)
+							);
+						})
+					);
+					const ticketState = await window.getTicketState(barCode);
 					expect(ticketState).toBe('PAID');
 				});
 			});
@@ -587,10 +726,17 @@ describe('getTicketState(barcode); and payTicket(barcode, paymentMethod);', () =
 						})
 					);
 					await window.payTicket(barCode, PaymentMethod.CASH);
-					const dateNowSpyGetTicketState = jest.spyOn(Date, 'now')
-						.mockImplementation(() => new Date(2020, 2, 10, 5, 15, 1, 0).getTime());
-					const ticketState = window.getTicketState(barCode);
-					dateNowSpyGetTicketState.mockRestore();
+					server.use(
+						rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
+							return res(
+								ctx.json({
+									ticketState: TicketState.UNPAID,
+								}),
+								ctx.delay(10)
+							);
+						})
+					);
+					const ticketState = await window.getTicketState(barCode);
 					expect(ticketState).toBe('UNPAID');
 				});
 			});

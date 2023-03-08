@@ -1,6 +1,6 @@
 
 // types
-import { Ticket, PaymentMethod } from './parkingGarageSlice';
+import { Ticket, PaymentMethod, TicketState } from './parkingGarageSlice';
 
 export interface PayTicketResponseSuccess extends Response {
 	paymentDate: number;
@@ -36,14 +36,31 @@ export interface CheckoutSuccessResponseSuccess extends Response {
 	success: boolean;
 }
 
-export const checkoutSuccess = (ticket: Ticket) => {
+export const checkoutSuccess = (barCode: string) => {
 	return fetch('http://localhost:3001/checkout-success', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
 		},
 		body: JSON.stringify({
-			ticket,
+			barCode,
+		}),
+	});
+};
+
+
+export interface GetTicketStateResponseSuccess extends Response {
+	ticketState: TicketState;
+}
+
+export const getTicketState = (barCode: string) => {
+	return fetch('http://localhost:3001/get-ticket-state', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			barCode,
 		}),
 	});
 };
