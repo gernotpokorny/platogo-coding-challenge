@@ -222,7 +222,7 @@ export const payTicketAsync = createAsyncThunk<
 	async ({ barCode, paymentMethod }, { getState }) => {
 		const ticket = selectTicketWithBarCode(barCode)(getState());
 		if (ticket) {
-			const response = await payTicket(ticket, paymentMethod);
+			const response = await payTicket(barCode, paymentMethod);
 			if (response.ok) {
 				const data = await response.json();
 				return {

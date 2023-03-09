@@ -6,14 +6,14 @@ export interface PayTicketResponseSuccess extends Response {
 	paymentDate: number;
 }
 
-export const payTicket = (ticket: Ticket, paymentMethod: PaymentMethod) => {
+export const payTicket = (barCode: string, paymentMethod: PaymentMethod) => {
 	return fetch('http://localhost:3001/pay-ticket', {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
 		},
 		body: JSON.stringify({
-			ticket,
+			barCode,
 			paymentMethod,
 		}),
 	});
