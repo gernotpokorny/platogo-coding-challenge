@@ -1,12 +1,12 @@
 // actions
-import { parkAsync, leaveAsync, calculatePrice, getTicketState, setError } from './parkingGarageSlice';
+import { parkAsync, leaveAsync, setError } from './parkingGarageSlice';
 
 // components
 import { AlertDialog } from '../../shared/components/AlertDialog';
 import { List, Typography } from '@mui/material';
 
 // constants
-import { PaymentMethod, TicketState } from './parkingGarageSlice';
+import { PaymentMethod } from './parkingGarageSlice';
 
 // hooks
 import { useRef } from 'react';
@@ -20,14 +20,14 @@ import { selectTicketWithBarCode } from './parkingGarageSlice';
 import { StyledListItem, ParkingBoxContainer } from './ParkingBox.style';
 
 // types
-import { ParkingSpace, CalculatePricePaidTicketReturnValue } from './parkingGarageSlice';
+import { ParkingSpace } from './parkingGarageSlice';
 
 interface ParkingBoxProps {
 	parkingSpace: ParkingSpace
 }
 
 export const ParkingBox: React.FC<ParkingBoxProps> = ({ parkingSpace }) => {
-	const { spaceNumber, barCode } = parkingSpace;
+	const { spaceNumber, barCode, showAre15MinutesPassedSincePaymentMessage } = parkingSpace;
 	const dispatch = useAppDispatch();
 	const ticketWithBarCode = useAppSelector(selectTicketWithBarCode(barCode));
 	const buttonRef = useRef<HTMLButtonElement>(null);
@@ -94,6 +94,9 @@ export const ParkingBox: React.FC<ParkingBoxProps> = ({ parkingSpace }) => {
 				await dispatch(parkAsync({ spaceNumber, executeWelcomeDialog, resetWelcomeDialog })).unwrap();
 			}
 		} catch (error) {
+			if (process.env.NODE_ENV === 'development') {
+				console.error(error);
+			}
 			if (typeof error === 'object' && Object.prototype.hasOwnProperty.call(error, 'message')) {
 				dispatch(setError({
 					name: (error as Error).name,
@@ -112,25 +115,6 @@ export const ParkingBox: React.FC<ParkingBoxProps> = ({ parkingSpace }) => {
 		}
 		buttonRef.current?.removeAttribute('disabled');
 	};
-
-	const getTicketPrice = () => {
-		if (ticketWithBarCode) {
-			return dispatch(calculatePrice(ticketWithBarCode.barCode));
-		}
-		else {
-			return null;
-		}
-	};
-
-	const ticketPrice = getTicketPrice();
-	const ticketState = (() => {
-		if (ticketWithBarCode) {
-			return dispatch(getTicketState(ticketWithBarCode.barCode));
-		}
-		else {
-			return null;
-		}
-	})();
 
 	return (
 		<>
@@ -158,69 +142,70 @@ export const ParkingBox: React.FC<ParkingBoxProps> = ({ parkingSpace }) => {
 				disableBackdropClick={false}
 				onClose={() => { resolveWelcomeDialog(false); }}
 			/>
-			<AlertDialog
-				title='Ticket Payment Notice'
-				content={
-					<>
-						{ticketWithBarCode && ticketState === TicketState.UNPAID && ticketWithBarCode.payments && (
-							<Typography variant='body1'>15 minutes have passed since your last payment.</Typography>
-						)}
-						<Typography variant='body1'>
-							The ticket must be payed at the cash-machine in order to leave the parking garage.
-						</Typography>
-						<Typography variant='body1'>Ticket price: {`${ticketPrice}`} €</Typography>
-					</>
-				}
-				successButtonText='Pay Ticket'
-				cancelButtonText='Cancel'
-				open={isPayTicketDialogOpen}
-				onSuccess={resolvePayTicketDialog}
-				onCancel={() => { resolvePayTicketDialog(false); }}
-				disableEscapeKeyDown={false}
-				disableBackdropClick={false}
-				onClose={() => { resolvePayTicketDialog(false); }}
-			/>
-			<AlertDialog
-				title='Payment Successful'
-				content={
-					<>
-						<Typography variant='body1'>The payment was successful.</Typography>
-						{
-							ticketPrice
-							&& Object.prototype.hasOwnProperty.call(ticketPrice, 'ticketPrice')
-							&& Object.prototype.hasOwnProperty.call(ticketPrice, 'paymentReceipt')
-							&& (
-								<>
-									<Typography variant='body1'>Payment receipt:</Typography>
-									<List sx={{ backgroundColor: '#efefef' }}>
-										{(ticketPrice as CalculatePricePaidTicketReturnValue).paymentReceipt.map((line, index) => (
-											// Note: I know it's bad practice to set the index as a key, but it doesn't matter here.
-											<StyledListItem key={index}>
-												<Typography
-													variant='body1'
-													component='span'
-													sx={{ fontFamily: 'monospace' }}
-												>
-													{line}
-												</Typography>
-											</StyledListItem>
-										))}
-									</List>
-								</>
-							)
-						}
-						<Typography variant='body1'>
-							You have 15 minutes to leave the parking garage.
-							If you don't leave within 15 minutes, then you have to pay the addtional parking time.
-						</Typography>
-					</>
-				}
-				successButtonText='Confirm'
-				showCancelButton={false}
-				successButtonVariant='confirm'
-				open={isPaymentSuccessfulDialogOpen}
-				onSuccess={resolvePaymentSuccessfulDialog}
-			/>
+			{ticketWithBarCode && (
+				<AlertDialog
+					title='Ticket Payment Notice'
+					content={
+						<>
+							{showAre15MinutesPassedSincePaymentMessage && (
+								<Typography variant='body1'>15 minutes have passed since your last payment.</Typography>
+							)}
+							<Typography variant='body1'>
+								The ticket must be payed at the cash-machine in order to leave the parking garage.
+							</Typography>
+							<Typography variant='body1'>Ticket price: {`${ticketWithBarCode.ticketPrice}`} €</Typography>
+						</>
+					}
+					successButtonText='Pay Ticket'
+					cancelButtonText='Cancel'
+					open={isPayTicketDialogOpen}
+					onSuccess={resolvePayTicketDialog}
+					onCancel={() => { resolvePayTicketDialog(false); }}
+					disableEscapeKeyDown={false}
+					disableBackdropClick={false}
+					onClose={() => { resolvePayTicketDialog(false); }}
+				/>
+			)}
+			{ticketWithBarCode && (
+				<AlertDialog
+					title='Payment Successful'
+					content={
+						<>
+							<Typography variant='body1'>The payment was successful.</Typography>
+							{
+								ticketWithBarCode.paymentReceipt && (
+									<>
+										<Typography variant='body1'>Payment receipt:</Typography>
+										<List sx={{ backgroundColor: '#efefef' }}>
+											{ticketWithBarCode.paymentReceipt.map((line, index) => (
+												// Note: I know it's bad practice to set the index as a key, but it doesn't matter here.
+												<StyledListItem key={index}>
+													<Typography
+														variant='body1'
+														component='span'
+														sx={{ fontFamily: 'monospace' }}
+													>
+														{line}
+													</Typography>
+												</StyledListItem>
+											))}
+										</List>
+									</>
+								)
+							}
+							<Typography variant='body1'>
+								You have 15 minutes to leave the parking garage.
+								If you don't leave within 15 minutes, then you have to pay the addtional parking time.
+							</Typography>
+						</>
+					}
+					successButtonText='Confirm'
+					showCancelButton={false}
+					successButtonVariant='confirm'
+					open={isPaymentSuccessfulDialogOpen}
+					onSuccess={resolvePaymentSuccessfulDialog}
+				/>
+			)}
 			<AlertDialog
 				title='Gate Checkout'
 				content={

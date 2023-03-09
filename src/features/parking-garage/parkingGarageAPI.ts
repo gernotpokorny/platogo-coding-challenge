@@ -1,88 +1,82 @@
 
-// constants
-import { TicketState } from './parkingGarageSlice';
-
 // types
-import { Ticket, PaymentMethod } from './parkingGarageSlice';
+import { Ticket, PaymentMethod, TicketState, PaymentReceipt } from './parkingGarageSlice';
 
-// utils
-import { generateBarCode, calculateTicketState } from './ParkingGarage.utils';
-
-interface PayTicketResponseSuccess {
-	ok: true;
+export interface PayTicketResponseSuccess extends Response {
 	paymentDate: number;
 }
 
-interface PayTicketResponseFailure {
-	ok: false;
-	statusText: string;
-}
-
-type PayTicketResponse = PayTicketResponseSuccess | PayTicketResponseFailure;
-
-// A mock function to mimic making an async request for data
-export const payTicket = (ticket: Ticket, paymentMethod: PaymentMethod) => {
-	return new Promise<PayTicketResponse>((resolve) => {
-		setTimeout(() => {
-			resolve({
-				ok: true,
-				paymentDate: Date.now(),
-			});
-		}, 500);
+export const payTicket = (barCode: string, paymentMethod: PaymentMethod) => {
+	return fetch('http://localhost:3001/pay-ticket', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			barCode,
+			paymentMethod,
+		}),
 	});
 };
 
-interface GetTicketResponseSuccess {
-	ok: true;
+export interface GetTicketResponseSuccess extends Response {
 	ticket: Ticket;
 }
 
-interface GetTicketResponseFailure {
-	ok: false;
-	statusText: string;
-}
-
-type GetTicketResponse = GetTicketResponseSuccess | GetTicketResponseFailure;
-
-// A mock function to mimic making an async request for data
 export const getTicket = () => {
-	return new Promise<GetTicketResponse>((resolve) => {
-		const barCode = generateBarCode();
-		const ticket = {
-			barCode,
-			dateOfIssuance: Date.now(),
-		};
-		setTimeout(() => {
-			resolve({
-				ok: true,
-				ticket,
-			});
-		}, 500);
+	return fetch('http://localhost:3001/get-ticket', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
 	});
 };
 
-interface GateCheckoutResponseSuccess {
-	ok: true;
+export interface CheckoutSuccessResponseSuccess extends Response {
 	success: boolean;
 }
 
-interface GateCheckoutResponseFailure {
-	ok: false;
-	statusText: string;
+export const checkoutSuccess = (barCode: string) => {
+	return fetch('http://localhost:3001/checkout-success', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			barCode,
+		}),
+	});
+};
+
+export interface GetTicketStateResponseSuccess extends Response {
+	ticketState: TicketState;
 }
 
-type GateCheckoutResponse = GateCheckoutResponseSuccess | GateCheckoutResponseFailure;
+export const getTicketState = (barCode: string) => {
+	return fetch('http://localhost:3001/get-ticket-state', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			barCode,
+		}),
+	});
+};
 
-// A mock function to mimic making an async request for data
-export const gateCheckout = (ticket: Ticket) => {
-	return new Promise<GateCheckoutResponse>((resolve) => {
-		const currentDate = new Date();
-		const ticketState = calculateTicketState(ticket, currentDate);
-		setTimeout(() => {
-			resolve({
-				ok: true,
-				success: ticketState === TicketState.PAID ? true : false,
-			});
-		}, 500);
+export interface CalculateTicketPriceResponseSuccess extends Response {
+	ticketPrice: number;
+	paymentReceipt?: PaymentReceipt;
+}
+
+export const calculateTicketPrice = (barCode: string) => {
+	return fetch('http://localhost:3001/calculate-ticket-price', {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify({
+			barCode,
+		}),
 	});
 };
