@@ -10,8 +10,10 @@ docs/Platogo Developer Challenge - Client - with provided Template.pdf
 
 ## Compile and start
 
-1. Start the backend from the `platogo-coding-challange-backend` repo.
+1. Start the backend from the [`platogo-coding-challange-backend`][1] repo.
 2. Run `npm start`
+
+[1]: https://github.com/gernotpokorny/platogo-coding-challenge-backend
 
 ---
 
