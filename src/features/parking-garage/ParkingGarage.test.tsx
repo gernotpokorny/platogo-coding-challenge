@@ -45,6 +45,14 @@ const handlers = [
 			ctx.delay(10)
 		);
 	}),
+	rest.post('http://localhost:3001/calculate-ticket-price', (req, res, ctx) => {
+		return res(
+			ctx.json({
+				ticketPrice: 2,
+			}),
+			ctx.delay(10)
+		);
+	}),
 	rest.post('http://localhost:3001/checkout-success', (req, res, ctx) => {
 		return res(
 			ctx.json({
@@ -604,6 +612,21 @@ test(
 				);
 			})
 		);
+		server.use(
+			rest.post('http://localhost:3001/calculate-ticket-price', (req, res, ctx) => {
+				return res(
+					ctx.json({
+						ticketPrice: 2,
+						paymentReceipt: [
+							'Paid: 2€',
+							'Payment date: Dienstag, 10. März 2020 um 04:00:00',
+							'Payment method: CASH',
+						]
+					}),
+					ctx.delay(10)
+				);
+			}),
+		);
 		await waitForElementToBeRemoved(() => screen.queryByText('Ticket Payment Notice'));
 
 		await screen.findByText('Payment Successful');
@@ -650,14 +673,11 @@ test(
 		await waitForElementToBeRemoved(() => screen.queryByText('Welcome'));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('occupied'));
 
-		const dateNowSpy = jest.spyOn(Date, 'now')
-			.mockImplementation(() => new Date(2020, 2, 10, 2, 0, 0, 0).getTime());
 		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Ticket Payment Notice');
 		await screen.findByText('Ticket price: 2 €');
-		dateNowSpy.mockRestore();
 	}
 );
 
@@ -697,14 +717,20 @@ test(
 		await waitForElementToBeRemoved(() => screen.queryByText('Welcome'));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('occupied'));
 
-		const dateNowSpy = jest.spyOn(Date, 'now')
-			.mockImplementation(() => new Date(2020, 2, 10, 2, 0, 1, 0).getTime());
-		// eslint-disable-next-line testing-library/no-unnecessary-act
+		server.use(
+			rest.post('http://localhost:3001/calculate-ticket-price', (req, res, ctx) => {
+				return res(
+					ctx.json({
+						ticketPrice: 4,
+					}),
+					ctx.delay(10)
+				);
+			})
+		);
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Ticket Payment Notice');
 		await screen.findByText('Ticket price: 4 €');
-		dateNowSpy.mockRestore();
 	}
 );
 
@@ -763,8 +789,6 @@ test(
 				);
 			})
 		);
-		const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
-			.mockImplementation(() => new Date(2020, 2, 10, 2, 0, 1, 0).getTime());
 		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(payTicketButton));
 		server.use(
@@ -777,6 +801,21 @@ test(
 				);
 			})
 		);
+		server.use(
+			rest.post('http://localhost:3001/calculate-ticket-price', (req, res, ctx) => {
+				return res(
+					ctx.json({
+						ticketPrice: 2,
+						paymentReceipt: [
+							'Paid: 2€',
+							'Payment date: Dienstag, 10. März 2020 um 02:00:00',
+							'Payment method: CASH',
+						],
+					}),
+					ctx.delay(10)
+				);
+			}),
+		);
 		await waitForElementToBeRemoved(() => screen.queryByText('Ticket Payment Notice'));
 
 		await screen.findByText('Payment Successful');
@@ -784,7 +823,6 @@ test(
 		await screen.findByText('Paid: 2€');
 		await screen.findByText('Payment date: Dienstag, 10. März 2020 um 02:00:00');
 		await screen.findByText('Payment method: CASH');
-		dateNowSpyCalculatePrice.mockRestore();
 	}
 );
 
@@ -843,8 +881,6 @@ test(
 				);
 			})
 		);
-		const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
-			.mockImplementation(() => new Date(2020, 2, 10, 2, 0, 2, 0).getTime());
 		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(payTicketButton));
 		server.use(
@@ -857,6 +893,21 @@ test(
 				);
 			})
 		);
+		server.use(
+			rest.post('http://localhost:3001/calculate-ticket-price', (req, res, ctx) => {
+				return res(
+					ctx.json({
+						ticketPrice: 2,
+						paymentReceipt: [
+							'Paid: 4€',
+							'Payment date: Dienstag, 10. März 2020 um 02:00:01',
+							'Payment method: CASH',
+						],
+					}),
+					ctx.delay(10)
+				);
+			})
+		);
 		await waitForElementToBeRemoved(() => screen.queryByText('Ticket Payment Notice'));
 
 		await screen.findByText('Payment Successful');
@@ -864,7 +915,6 @@ test(
 		await screen.findByText('Paid: 4€');
 		await screen.findByText('Payment date: Dienstag, 10. März 2020 um 02:00:01');
 		await screen.findByText('Payment method: CASH');
-		dateNowSpyCalculatePrice.mockRestore();
 	}
 );
 
@@ -956,20 +1006,14 @@ test(
 		expect(screen.getByTestId('free-spaces-display-board').textContent).toBe('53');
 
 		// eslint-disable-next-line testing-library/no-unnecessary-act
-		const dateNowSpyLeave = jest.spyOn(Date, 'now')
-			.mockImplementation(() => new Date(2020, 2, 10, 1, 20, 0, 0).getTime());
 		await act(async () => await userEvent.click(button));
-		dateNowSpyLeave.mockRestore();
 
 		await screen.findByText('Gate Checkout');
 		const leaveButton = await screen.findByRole('button', {
 			name: /^Leave$/,
 		});
-		const dateNowSpyAfterLeaveClicked = jest.spyOn(Date, 'now')
-			.mockImplementation(() => new Date(2020, 2, 10, 1, 20, 0, 0).getTime());
 		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(leaveButton));
-		dateNowSpyAfterLeaveClicked.mockRestore();
 		await waitForElementToBeRemoved(() => screen.queryByText('Gate Checkout'));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('free'), { timeout: 2000 });
 
@@ -1069,8 +1113,6 @@ test(
 		expect(screen.getByTestId('free-spaces-display-board').textContent).toBe('53');
 
 		// eslint-disable-next-line testing-library/no-unnecessary-act
-		const dateNowSpyLeave = jest.spyOn(Date, 'now')
-			.mockImplementation(() => new Date(2020, 2, 10, 1, 20, 1, 0).getTime());
 		server.use(
 			rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
 				return res(
@@ -1086,7 +1128,6 @@ test(
 		await screen.findByText('Ticket Payment Notice');
 		await screen.findByText('Ticket price: 2 €');
 		await screen.findByText('15 minutes have passed since your last payment.');
-		dateNowSpyLeave.mockRestore();
 		server.use(
 			rest.post('http://localhost:3001/pay-ticket', (req, res, ctx) => {
 				return res(
@@ -1126,11 +1167,8 @@ test(
 		const leaveButton = await screen.findByRole('button', {
 			name: /^Leave$/,
 		});
-		const dateNowSpyAfterLeaveClicked = jest.spyOn(Date, 'now')
-			.mockImplementation(() => new Date(2020, 2, 10, 1, 20, 1, 0).getTime());
 		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(leaveButton));
-		dateNowSpyAfterLeaveClicked.mockRestore();
 		await waitForElementToBeRemoved(() => screen.queryByText('Gate Checkout'));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('free'), { timeout: 2000 });
 
@@ -1230,8 +1268,6 @@ test(
 		expect(screen.getByTestId('free-spaces-display-board').textContent).toBe('53');
 
 		// eslint-disable-next-line testing-library/no-unnecessary-act
-		const dateNowSpyLeave = jest.spyOn(Date, 'now')
-			.mockImplementation(() => new Date(2020, 2, 10, 2, 5, 0, 0).getTime());
 		server.use(
 			rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
 				return res(
@@ -1247,7 +1283,6 @@ test(
 		await screen.findByText('Ticket Payment Notice');
 		await screen.findByText('Ticket price: 2 €');
 		await screen.findByText('15 minutes have passed since your last payment.');
-		dateNowSpyLeave.mockRestore();
 		server.use(
 			rest.post('http://localhost:3001/pay-ticket', (req, res, ctx) => {
 				return res(
@@ -1287,11 +1322,8 @@ test(
 		const leaveButton = await screen.findByRole('button', {
 			name: /^Leave$/,
 		});
-		const dateNowSpyAfterLeaveClicked = jest.spyOn(Date, 'now')
-			.mockImplementation(() => new Date(2020, 2, 10, 2, 5, 0, 0).getTime());
 		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(leaveButton));
-		dateNowSpyAfterLeaveClicked.mockRestore();
 		await waitForElementToBeRemoved(() => screen.queryByText('Gate Checkout'));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('free'), { timeout: 2000 });
 
@@ -1391,8 +1423,6 @@ test(
 		expect(screen.getByTestId('free-spaces-display-board').textContent).toBe('53');
 
 		// eslint-disable-next-line testing-library/no-unnecessary-act
-		const dateNowSpyLeave = jest.spyOn(Date, 'now')
-			.mockImplementation(() => new Date(2020, 2, 10, 2, 5, 1, 0).getTime());
 		server.use(
 			rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
 				return res(
@@ -1403,12 +1433,21 @@ test(
 				);
 			})
 		);
+		server.use(
+			rest.post('http://localhost:3001/calculate-ticket-price', (req, res, ctx) => {
+				return res(
+					ctx.json({
+						ticketPrice: 4,
+					}),
+					ctx.delay(10)
+				);
+			})
+		);
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Ticket Payment Notice');
 		await screen.findByText('Ticket price: 4 €');
 		await screen.findByText('15 minutes have passed since your last payment.');
-		dateNowSpyLeave.mockRestore();
 		server.use(
 			rest.post('http://localhost:3001/pay-ticket', (req, res, ctx) => {
 				return res(
@@ -1448,11 +1487,8 @@ test(
 		const leaveButton = await screen.findByRole('button', {
 			name: /^Leave$/,
 		});
-		const dateNowSpyAfterLeaveClicked = jest.spyOn(Date, 'now')
-			.mockImplementation(() => new Date(2020, 2, 10, 2, 5, 1, 0).getTime());
 		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(leaveButton));
-		dateNowSpyAfterLeaveClicked.mockRestore();
 		await waitForElementToBeRemoved(() => screen.queryByText('Gate Checkout'));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('free'), { timeout: 2000 });
 
@@ -1535,10 +1571,7 @@ test(
 			name: /^Leave$/,
 		});
 		// eslint-disable-next-line testing-library/no-unnecessary-act
-		const dateNowSpyLeave = jest.spyOn(Date, 'now')
-			.mockImplementation(() => new Date(2020, 2, 10, 2, 15, 1, 0).getTime());
 		await act(async () => await userEvent.click(leaveButton));
-		dateNowSpyLeave.mockRestore();
 		await waitForElementToBeRemoved(() => screen.queryByText('Gate Checkout'));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('occupied'), { timeout: 2000 });
 
@@ -1644,17 +1677,12 @@ test(
 		expect(screen.getByTestId('free-spaces-display-board').textContent).toBe('53');
 
 		// eslint-disable-next-line testing-library/no-unnecessary-act
-		const dateNowSpyLeave = jest.spyOn(Date, 'now')
-			.mockImplementation(() => new Date(2020, 2, 10, 1, 20, 0, 0).getTime());
 		await act(async () => await userEvent.click(button));
-		dateNowSpyLeave.mockRestore();
 
 		await screen.findByText('Gate Checkout');
 		const leaveButton = await screen.findByRole('button', {
 			name: /^Leave$/,
 		});
-		const dateNowSpyAfterLeaveClicked = jest.spyOn(Date, 'now')
-			.mockImplementation(() => new Date(2020, 2, 10, 1, 20, 1, 0).getTime());
 		server.use(
 			rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
 				return res(
@@ -1667,7 +1695,6 @@ test(
 		);
 		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(leaveButton));
-		dateNowSpyAfterLeaveClicked.mockRestore();
 		await waitForElementToBeRemoved(() => screen.queryByText('Gate Checkout'));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('occupied'), { timeout: 2000 });
 

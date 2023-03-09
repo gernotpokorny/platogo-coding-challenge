@@ -1,5 +1,5 @@
 // api
-import { getTicket, payTicket, getTicketState, checkoutSuccess } from './parkingGarageAPI';
+import { getTicket, payTicket, getTicketState, calculateTicketPrice, checkoutSuccess } from './parkingGarageAPI';
 
 // types
 import { RootState, AppThunk } from '../../app/store';
@@ -9,12 +9,12 @@ import {
 	GetTicketResponseSuccess,
 	PayTicketResponseSuccess,
 	GetTicketStateResponseSuccess,
+	CalculateTicketPriceResponseSuccess,
 	CheckoutSuccessResponseSuccess,
 } from './parkingGarageAPI';
 
 // utils
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { calculateTicketPrice, getFormattedPaymentDate } from './ParkingGarage.utils';
 
 export const PARKING_CAPACITY = 54;
 
@@ -363,63 +363,13 @@ export const calculatePriceAsync = createAsyncThunk<
 >(
 	'parkingGarage/getTicketState',
 	async ({ barCode }, { getState, dispatch }) => {
-		const ticket = selectTicketWithBarCode(barCode)(getState());
-		if (ticket) {
-			const ticketState = await dispatch(getTicketStateAsync({ barCode })).unwrap();
-			if (ticket.payments && ticket.payments.length > 0 && ticketState === TicketState.PAID) {
-				if (ticket.payments.length === 1) {
-					const issueDate = new Date(ticket.dateOfIssuance);
-					const currentPayment = ticket.payments[ticket.payments.length - 1];
-					const paymentDate = new Date(currentPayment.paymentDate);
-					const ticketPrice = calculateTicketPrice(issueDate, paymentDate);
-					return {
-						ticketPrice: 0,
-						paymentReceipt: [
-							`Paid: ${ticketPrice}€`,
-							`Payment date: ${getFormattedPaymentDate(paymentDate)}`,
-							`Payment method: ${currentPayment.paymentMethod}`,
-						],
-					};
-				}
-				else {
-					const penultimatePaymentDate = new Date(ticket.payments[ticket.payments.length - 2].paymentDate);
-					const currentPayment = ticket.payments[ticket.payments.length - 1];
-					const paymentDate = new Date(currentPayment.paymentDate);
-					const ticketPrice = calculateTicketPrice(penultimatePaymentDate, paymentDate);
-					return {
-						ticketPrice: 0,
-						paymentReceipt: [
-							`Paid: ${ticketPrice}€`,
-							`Payment date: ${getFormattedPaymentDate(paymentDate)}`,
-							`Payment method: ${currentPayment.paymentMethod}`,
-						],
-					};
-				}
-			}
-			else {
-				if (ticket.payments && ticket.payments.length > 0) {
-					const lastPayment = ticket.payments[ticket.payments.length - 1];
-					const paymentDate = new Date(Date.now()); // Date.now() gets mocked within the test!
-					const ticketPrice = calculateTicketPrice(
-						new Date(lastPayment.paymentDate),
-						paymentDate
-					);
-					return {
-						ticketPrice,
-					};
-				}
-				else {
-					const issueDate = new Date(ticket.dateOfIssuance);
-					const paymentDate = new Date(Date.now()); // Date.now() gets mocked within the test!
-					const ticketPrice = calculateTicketPrice(issueDate, paymentDate);
-					return {
-						ticketPrice,
-					};
-				}
-			}
+		const response = await calculateTicketPrice(barCode);
+		if (response.ok) {
+			const data = await response.json();
+			return (data as CalculateTicketPriceResponseSuccess);
 		}
 		else {
-			throw new Error('Ticket cannot be found!');
+			throw new Error(response.statusText);
 		}
 	}
 );

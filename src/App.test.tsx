@@ -101,6 +101,14 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 					ctx.delay(10)
 				);
 			}),
+			rest.post('http://localhost:3001/calculate-ticket-price', (req, res, ctx) => {
+				return res(
+					ctx.json({
+						ticketPrice: 2,
+					}),
+					ctx.delay(10)
+				);
+			}),
 		];
 
 		const server = setupServer(...handlers);
@@ -140,10 +148,7 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 			renderWithProviders(<App />);
 			await act(async () => {
 				const barCode = await window.getTicket();
-				const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
-					.mockImplementation(() => new Date(2020, 2, 10, 2, 0, 0, 0).getTime());
 				const price = await window.calculatePrice(barCode);
-				dateNowSpyCalculatePrice.mockRestore();
 				expect(price).toBe(2);
 			});
 		});
@@ -151,10 +156,17 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 			renderWithProviders(<App />);
 			await act(async () => {
 				const barCode = await window.getTicket();
-				const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
-					.mockImplementation(() => new Date(2020, 2, 10, 2, 0, 1, 0).getTime());
+				server.use(
+					rest.post('http://localhost:3001/calculate-ticket-price', (req, res, ctx) => {
+						return res(
+							ctx.json({
+								ticketPrice: 4,
+							}),
+							ctx.delay(10)
+						);
+					}),
+				);
 				const price = await window.calculatePrice(barCode);
-				dateNowSpyCalculatePrice.mockRestore();
 				expect(price).toBe(4);
 			});
 		});
@@ -177,6 +189,14 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 				return res(
 					ctx.json({
 						paymentDate: (new Date(2020, 2, 10, 3, 0, 0, 0)).getTime(),
+					}),
+					ctx.delay(10)
+				);
+			}),
+			rest.post('http://localhost:3001/calculate-ticket-price', (req, res, ctx) => {
+				return res(
+					ctx.json({
+						ticketPrice: 2,
 					}),
 					ctx.delay(10)
 				);
@@ -212,10 +232,22 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 									);
 								})
 							);
-							const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
-								.mockImplementation(() => new Date(2020, 2, 10, 3, 15, 0, 0).getTime());
+							server.use(
+								rest.post('http://localhost:3001/calculate-ticket-price', (req, res, ctx) => {
+									return res(
+										ctx.json({
+											ticketPrice: 0,
+											paymentReceipt: [
+												'Paid: 6€',
+												'Payment date: Dienstag, 10. März 2020 um 03:00:00',
+												'Payment method: CASH',
+											],
+										}),
+										ctx.delay(10)
+									);
+								}),
+							);
 							const price = await window.calculatePrice(barCode);
-							dateNowSpyCalculatePrice.mockRestore();
 							expect(Object.prototype.hasOwnProperty.call(price, 'ticketPrice')).toBe(true);
 							expect(Object.prototype.hasOwnProperty.call(price, 'paymentReceipt')).toBe(true);
 							expect((price as unknown as CalculatePricePaidTicketReturnValue).ticketPrice).toBe(0);
@@ -255,10 +287,22 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 									);
 								})
 							);
-							const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
-								.mockImplementation(() => new Date(2020, 2, 10, 4, 15, 0, 0).getTime());
+							server.use(
+								rest.post('http://localhost:3001/calculate-ticket-price', (req, res, ctx) => {
+									return res(
+										ctx.json({
+											ticketPrice: 0,
+											paymentReceipt: [
+												'Paid: 2€',
+												'Payment date: Dienstag, 10. März 2020 um 04:00:00',
+												'Payment method: CASH',
+											],
+										}),
+										ctx.delay(10)
+									);
+								})
+							);
 							const price = await window.calculatePrice(barCode);
-							dateNowSpyCalculatePrice.mockRestore();
 							expect(Object.prototype.hasOwnProperty.call(price, 'ticketPrice')).toBe(true);
 							expect(Object.prototype.hasOwnProperty.call(price, 'paymentReceipt')).toBe(true);
 							expect((price as unknown as CalculatePricePaidTicketReturnValue).ticketPrice).toBe(0);
@@ -288,10 +332,7 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 								);
 							})
 						);
-						const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
-							.mockImplementation(() => new Date(2020, 2, 10, 3, 15, 1, 0).getTime());
 						const price = await window.calculatePrice(barCode);
-						dateNowSpyCalculatePrice.mockRestore();
 						expect(price).toBe(2);
 					});
 				});
@@ -310,10 +351,7 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 								);
 							})
 						);
-						const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
-							.mockImplementation(() => new Date(2020, 2, 10, 4, 0, 0, 0).getTime());
 						const price = await window.calculatePrice(barCode);
-						dateNowSpyCalculatePrice.mockRestore();
 						expect(price).toBe(2);
 					});
 				});
@@ -332,10 +370,17 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 								);
 							})
 						);
-						const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
-							.mockImplementation(() => new Date(2020, 2, 10, 4, 0, 1, 0).getTime());
+						server.use(
+							rest.post('http://localhost:3001/calculate-ticket-price', (req, res, ctx) => {
+								return res(
+									ctx.json({
+										ticketPrice: 4,
+									}),
+									ctx.delay(10)
+								);
+							}),
+						);
 						const price = await window.calculatePrice(barCode);
-						dateNowSpyCalculatePrice.mockRestore();
 						expect(price).toBe(4);
 					});
 				});
@@ -367,10 +412,7 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 								);
 							})
 						);
-						const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
-							.mockImplementation(() => new Date(2020, 2, 10, 5, 15, 1, 0).getTime());
 						const price = await window.calculatePrice(barCode);
-						dateNowSpyCalculatePrice.mockRestore();
 						expect(price).toBe(2);
 					});
 				});
@@ -400,10 +442,7 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 								);
 							})
 						);
-						const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
-							.mockImplementation(() => new Date(2020, 2, 10, 6, 0, 0, 0).getTime());
 						const price = await window.calculatePrice(barCode);
-						dateNowSpyCalculatePrice.mockRestore();
 						expect(price).toBe(2);
 					});
 				});
@@ -433,10 +472,17 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 								);
 							})
 						);
-						const dateNowSpyCalculatePrice = jest.spyOn(Date, 'now')
-							.mockImplementation(() => new Date(2020, 2, 10, 6, 0, 1, 0).getTime());
+						server.use(
+							rest.post('http://localhost:3001/calculate-ticket-price', (req, res, ctx) => {
+								return res(
+									ctx.json({
+										ticketPrice: 4,
+									}),
+									ctx.delay(10)
+								);
+							}),
+						);
 						const price = await window.calculatePrice(barCode);
-						dateNowSpyCalculatePrice.mockRestore();
 						expect(price).toBe(4);
 					});
 				});
