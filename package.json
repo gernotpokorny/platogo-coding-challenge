@@ -1,6 +1,6 @@
 {
 	"name": "platogo-coding-challange",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"private": true,
 	"dependencies": {
 		"@emotion/react": "^11.10.6",
@@ -28,6 +28,9 @@
 		"build": "react-scripts build",
 		"test": "react-scripts test --testMatch \"**/__tests__/**/*.[jt]s?(x)\", \"**/?(*.)+(spec|test).[jt]s?(x)\" \"!**/e2e/**/__tests__/**/*.[jt]s?(x)\" \"!**/e2e/**/?(*.)+(spec|test).[jt]s?(x)\" --verbose",
 		"test:e2e": "react-scripts test --testMatch \"**/e2e/**/__tests__/**/*.[jt]s?(x)\" \"**/e2e/**/?(*.)+(spec|test).[jt]s?(x)\" --runInBand --verbose",
+		"test:nowatch": "npm test -- --watchAll=false",
+		"test:e2e:nowatch": "npm run test:e2e -- --watchAll=false",
+		"test:all": "npm run test:nowatch && npm run test:e2e:nowatch",
 		"test:custom": "react-scripts test",
 		"eject": "react-scripts eject"
 	},
