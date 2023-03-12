@@ -92,8 +92,7 @@ test('Initially all parking spaces should be free', () => {
 	});
 });
 
-test(
-	'Click on parking space (park) -> Cancel',
+test('Click on parking space (park) -> Cancel',
 	async () => {
 		renderWithProviders(
 			<ParkingGarage />
@@ -118,8 +117,7 @@ test(
 	}
 );
 
-test(
-	'Click on parking space (park) -> Get Ticket',
+test('Click on parking space (park) -> Get Ticket',
 	async () => {
 		renderWithProviders(
 			<ParkingGarage />
@@ -145,8 +143,7 @@ test(
 	}
 );
 
-test(
-	'Click on parking space (park) -> Get Ticket -> Click on parking space (leave) -> Cancel',
+test('Click on parking space (park) -> Get Ticket -> Click on parking space (leave) -> Cancel',
 	async () => {
 		renderWithProviders(
 			<ParkingGarage />
@@ -184,8 +181,7 @@ test(
 	}
 );
 
-test(
-	'Click on parking space (park) -> Get Ticket -> Click on parking space (leave) -> Pay Ticket -> Confirm Payment Successful -> Leave',
+test('Click on parking space (park) -> Get Ticket -> Click on parking space (leave) -> Pay Ticket -> Confirm Payment Successful -> Leave',
 	async () => {
 		renderWithProviders(
 			<ParkingGarage />
@@ -253,8 +249,7 @@ test(
 	10000
 );
 
-test(
-	'Click on parking space (park) -> Get Ticket -> Click on parking space (leave) -> Pay Ticket -> Confirm Payment Successful -> Stay',
+test('Click on parking space (park) -> Get Ticket -> Click on parking space (leave) -> Pay Ticket -> Confirm Payment Successful -> Stay',
 	async () => {
 		renderWithProviders(
 			<ParkingGarage />
@@ -319,9 +314,7 @@ test(
 	10000
 );
 
-test(
-	`Click on parking space (park) -> Get Ticket -> Click on parking space (leave) -> Pay Ticket -> Confirm Payment Successful -> Stay -> 
-	Click on parking space (leave) -> Leave`,
+test('Click on parking space (park) -> Get Ticket -> Click on parking space (leave) -> Pay Ticket -> Confirm Payment Successful -> Stay -> Click on parking space (leave) -> Leave',
 	async () => {
 		renderWithProviders(
 			<ParkingGarage />
@@ -402,9 +395,7 @@ test(
 	10000
 );
 
-test(
-	`Click on parking space (park) -> Get Ticket -> Click on parking space (leave) -> Pay Ticket -> Confirm Payment Successful -> Leave -> 
-	Repeat`,
+test('Click on parking space (park) -> Get Ticket -> Click on parking space (leave) -> Pay Ticket -> Confirm Payment Successful -> Leave -> Repeat',
 	async () => {
 		renderWithProviders(
 			<ParkingGarage />
@@ -540,8 +531,7 @@ test(
 	20000
 );
 
-test(
-	'Click on parking space (park) -> Get Ticket -> Click on parking space (leave): Ticket price',
+test('Click on parking space (park) -> Get Ticket -> Click on parking space (leave): Ticket price',
 	async () => {
 		renderWithProviders(
 			<ParkingGarage />
@@ -570,9 +560,7 @@ test(
 	}
 );
 
-test(
-	`Click on parking space (park) -> Get Ticket -> Click on parking space (leave) -> Pay Ticket -> 
-	Confirm Payment Successful: Payment receipt`,
+test('Click on parking space (park) -> Get Ticket -> Click on parking space (leave) -> Pay Ticket -> Confirm Payment Successful: Payment receipt',
 	async () => {
 		renderWithProviders(
 			<ParkingGarage />
@@ -637,8 +625,7 @@ test(
 	}
 );
 
-test(
-	'Click on parking space (park) -> Get Ticket -> Click on parking space after 60 min 00 sec (leave): Ticket price (2€)',
+test('Click on parking space (park) -> Get Ticket -> Click on parking space after 60 min 00 sec (leave): Ticket price (2€)',
 	async () => {
 		renderWithProviders(
 			<ParkingGarage />
@@ -681,8 +668,7 @@ test(
 	}
 );
 
-test(
-	'Click on parking space (park) -> Get Ticket -> Click on parking space after 60 min 01 sec (leave): Ticket price (4€)',
+test('Click on parking space (park) -> Get Ticket -> Click on parking space after 60 min 01 sec (leave): Ticket price (4€)',
 	async () => {
 		renderWithProviders(
 			<ParkingGarage />
@@ -734,9 +720,7 @@ test(
 	}
 );
 
-test(
-	`Click on parking space (park) -> Get Ticket -> Click on parking space (leave) -> Pay Ticket after 60 min 00 sec -> 
-	Confirm Payment Successful: Payment receipt`,
+test('Click on parking space (park) -> Get Ticket -> Click on parking space (leave) -> Pay Ticket after 60 min 00 sec -> Confirm Payment Successful: Payment receipt',
 	async () => {
 		renderWithProviders(
 			<ParkingGarage />
@@ -826,9 +810,7 @@ test(
 	}
 );
 
-test(
-	`Click on parking space (park) -> Get Ticket -> Click on parking space (leave) -> Pay Ticket after 60 min 01 sec -> 
-	Confirm Payment Successful: Payment receipt`,
+test('Click on parking space (park) -> Get Ticket -> Click on parking space (leave) -> Pay Ticket after 60 min 01 sec -> Confirm Payment Successful: Payment receipt',
 	async () => {
 		renderWithProviders(
 			<ParkingGarage />
@@ -918,9 +900,7 @@ test(
 	}
 );
 
-test(
-	`Click on parking space (park) -> Get Ticket -> Click on parking space (leave) -> Pay Ticket -> Confirm Payment Successful -> Stay -> 
-	Click on parking space (leave) 15 min 00 sec after payment -> Leave`,
+test('Click on parking space (park) -> Get Ticket -> Click on parking space (leave) -> Pay Ticket -> Confirm Payment Successful -> Stay -> Click on parking space (leave) 15 min 00 sec after payment -> Leave',
 	async () => {
 		renderWithProviders(
 			<ParkingGarage />
@@ -1025,9 +1005,7 @@ test(
 	12000
 );
 
-test(
-	`Click on parking space (park) -> Get Ticket -> Click on parking space (leave) -> Pay Ticket -> Confirm Payment Successful -> Stay -> 
-	Click on parking space (leave) 15 min 01 sec after payment -> Pay Ticket (2€) -> Confirm Payment Successful -> Leave`,
+test('Click on parking space (park) -> Get Ticket -> Click on parking space (leave) -> Pay Ticket -> Confirm Payment Successful -> Stay -> Click on parking space (leave) 15 min 01 sec after payment -> Pay Ticket (2€) -> Confirm Payment Successful -> Leave',
 	async () => {
 		renderWithProviders(
 			<ParkingGarage />
@@ -1180,9 +1158,7 @@ test(
 	12000
 );
 
-test(
-	`Click on parking space (park) -> Get Ticket -> Click on parking space (leave) -> Pay Ticket -> Confirm Payment Successful -> Stay -> 
-	Click on parking space (leave) 60 min 00 sec after payment -> Pay Ticket (2€) -> Confirm Payment Successful -> Leave`,
+test('Click on parking space (park) -> Get Ticket -> Click on parking space (leave) -> Pay Ticket -> Confirm Payment Successful -> Stay -> Click on parking space (leave) 60 min 00 sec after payment -> Pay Ticket (2€) -> Confirm Payment Successful -> Leave',
 	async () => {
 		renderWithProviders(
 			<ParkingGarage />
@@ -1335,9 +1311,7 @@ test(
 	12000
 );
 
-test(
-	`Click on parking space (park) -> Get Ticket -> Click on parking space (leave) -> Pay Ticket -> Confirm Payment Successful -> Stay -> 
-	Click on parking space (leave) 60 min 01 sec after payment -> Pay Ticket (4€) -> Confirm Payment Successful -> Leave`,
+test('Click on parking space (park) -> Get Ticket -> Click on parking space (leave) -> Pay Ticket -> Confirm Payment Successful -> Stay -> Click on parking space (leave) 60 min 01 sec after payment -> Pay Ticket (4€) -> Confirm Payment Successful -> Leave',
 	async () => {
 		renderWithProviders(
 			<ParkingGarage />
@@ -1500,9 +1474,7 @@ test(
 	12000
 );
 
-test(
-	`Click on parking space (park) -> Get Ticket -> Click on parking space (leave) -> Pay Ticket -> Confirm Payment Successful ->
-	Wait more then 15 min -> Leave: "Not Paid Enough" Dialog should appear`,
+test('Click on parking space (park) -> Get Ticket -> Click on parking space (leave) -> Pay Ticket -> Confirm Payment Successful -> Wait more then 15 min -> Leave: "Not Paid Enough" Dialog should appear',
 	async () => {
 		renderWithProviders(
 			<ParkingGarage />
@@ -1589,9 +1561,7 @@ test(
 	10000
 );
 
-test(
-	`Click on parking space (park) -> Get Ticket -> Click on parking space (leave) -> Pay Ticket -> Confirm Payment Successful -> Stay -> 
-	Click on parking space (leave) 15 min 00 sec after payment -> Leave 15 min 01 sec after payment`,
+test('Click on parking space (park) -> Get Ticket -> Click on parking space (leave) -> Pay Ticket -> Confirm Payment Successful -> Stay -> Click on parking space (leave) 15 min 00 sec after payment -> Leave 15 min 01 sec after payment',
 	async () => {
 		renderWithProviders(
 			<ParkingGarage />

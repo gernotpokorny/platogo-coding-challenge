@@ -10,8 +10,24 @@ docs/Platogo Developer Challenge - Client - with provided Template.pdf
 
 ## Compile and start
 
-1. Start the backend from the [`platogo-coding-challange-backend`][1] repo.
+1. Start the backend with version `~1.0.1` from the [`platogo-coding-challange-backend`][1] repo.
 2. Run `npm start`
+
+[1]: https://github.com/gernotpokorny/platogo-coding-challenge-backend
+
+## Run the tests
+
+## Unit and Integration Tests
+
+1. Run `npm run test`
+
+## E2E Tests
+
+1. `git clone` the backend with version `~1.0.1` from the  [`platogo-coding-challange-backend`][1] repo
+2. Run `docker build .` within the root of the in step 1 cloned [`platogo-coding-challange-backend`][1] repo and note the resulting image hash.
+3. Copy `.env` to `.env.test.local`
+4. Set the `REACT_APP_E2E_TEST_IMAGE_ID` within `.env.test.local` to the image hash which the `docker build` command provided at step 2.
+5. Run `npm run test:e2e`
 
 [1]: https://github.com/gernotpokorny/platogo-coding-challenge-backend
 

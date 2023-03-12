@@ -164,7 +164,7 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 							}),
 							ctx.delay(10)
 						);
-					}),
+					})
 				);
 				const price = await window.calculatePrice(barCode);
 				expect(price).toBe(4);
@@ -245,7 +245,7 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 										}),
 										ctx.delay(10)
 									);
-								}),
+								})
 							);
 							const price = await window.calculatePrice(barCode);
 							expect(Object.prototype.hasOwnProperty.call(price, 'ticketPrice')).toBe(true);
@@ -378,7 +378,7 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 									}),
 									ctx.delay(10)
 								);
-							}),
+							})
 						);
 						const price = await window.calculatePrice(barCode);
 						expect(price).toBe(4);
@@ -480,7 +480,7 @@ describe('calculatePrice(barcode); and payTicket(barcode, paymentMethod);', () =
 									}),
 									ctx.delay(10)
 								);
-							}),
+							})
 						);
 						const price = await window.calculatePrice(barCode);
 						expect(price).toBe(4);

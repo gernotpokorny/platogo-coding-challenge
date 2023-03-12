@@ -1,6 +1,6 @@
 {
 	"name": "platogo-coding-challange",
-	"version": "0.1.0",
+	"version": "1.0.0",
 	"private": true,
 	"dependencies": {
 		"@emotion/react": "^11.10.6",
@@ -26,7 +26,9 @@
 	"scripts": {
 		"start": "react-scripts start",
 		"build": "react-scripts build",
-		"test": "react-scripts test",
+		"test": "react-scripts test --testMatch \"**/__tests__/**/*.[jt]s?(x)\", \"**/?(*.)+(spec|test).[jt]s?(x)\" \"!**/e2e/**/__tests__/**/*.[jt]s?(x)\" \"!**/e2e/**/?(*.)+(spec|test).[jt]s?(x)\" --verbose",
+		"test:e2e": "react-scripts test --testMatch \"**/e2e/**/__tests__/**/*.[jt]s?(x)\" \"**/e2e/**/?(*.)+(spec|test).[jt]s?(x)\" --runInBand --verbose",
+		"test:custom": "react-scripts test",
 		"eject": "react-scripts eject"
 	},
 	"eslintConfig": {
@@ -48,6 +50,7 @@
 		]
 	},
 	"devDependencies": {
+		"docker-cli-js": "^2.10.0",
 		"jest-environment-jsdom": "^29.4.3",
 		"msw": "^1.1.0",
 		"ts-jest": "^29.0.5",

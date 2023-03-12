@@ -42,7 +42,7 @@ function App() {
 	};
 
 	const payTicket = async (barCode: BarCode, paymentMethod: PaymentMethod) => {
-		await dispatch(payTicketAsync({ barCode, paymentMethod }));
+		await dispatch(payTicketAsync({ barCode, paymentMethod })).unwrap();
 	};
 
 	const calculatePrice = async (barCode: BarCode) => {
