@@ -101,14 +101,12 @@ test('Click on parking space (park) -> Cancel',
 		const button = screen.getByRole('button', {
 			name: /16/i,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Welcome');
 		const cancelButton = await screen.findByRole('button', {
 			name: /^Cancel$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(cancelButton));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('free'));
 
@@ -126,14 +124,12 @@ test('Click on parking space (park) -> Get Ticket',
 		const button = screen.getByRole('button', {
 			name: /16/i,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Welcome');
 		const getTicketButton = await screen.findByRole('button', {
 			name: /^Get Ticket$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(getTicketButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Welcome'));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('occupied'));
@@ -152,26 +148,22 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const button = screen.getByRole('button', {
 			name: /16/i,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Welcome');
 		const getTicketButton = await screen.findByRole('button', {
 			name: /^Get Ticket$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(getTicketButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Welcome'));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('occupied'));
 
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Ticket Payment Notice');
 		const cancelButton = await screen.findByRole('button', {
 			name: /^Cancel$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(cancelButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Ticket Payment Notice'));
 		expect(button.getAttribute('class')?.split(' ')).toContain('occupied');
@@ -190,26 +182,22 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const button = screen.getByRole('button', {
 			name: /16/i,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Welcome');
 		const getTicketButton = await screen.findByRole('button', {
 			name: /^Get Ticket$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(getTicketButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Welcome'));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('occupied'));
 
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Ticket Payment Notice');
 		const payTicketButton = await screen.findByRole('button', {
 			name: /^Pay Ticket$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(payTicketButton));
 		server.use(
 			rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
@@ -227,7 +215,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const paymentSuccessfulConfirmButton = await screen.findByRole('button', {
 			name: /^Confirm$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(paymentSuccessfulConfirmButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Payment Successful'));
 
@@ -235,7 +222,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const leaveButton = await screen.findByRole('button', {
 			name: /^Leave$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(leaveButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Gate Checkout'));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('free'), { timeout: 2000 });
@@ -258,26 +244,22 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const button = screen.getByRole('button', {
 			name: /16/i,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Welcome');
 		const getTicketButton = await screen.findByRole('button', {
 			name: /^Get Ticket$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(getTicketButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Welcome'));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('occupied'));
 
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Ticket Payment Notice');
 		const payTicketButton = await screen.findByRole('button', {
 			name: /^Pay Ticket$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(payTicketButton));
 		server.use(
 			rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
@@ -295,7 +277,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const paymentSuccessfulConfirmButton = await screen.findByRole('button', {
 			name: /^Confirm$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(paymentSuccessfulConfirmButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Payment Successful'));
 
@@ -303,7 +284,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const stayButton = await screen.findByRole('button', {
 			name: /^Stay$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(stayButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Gate Checkout'));
 		expect(button.getAttribute('class')?.split(' ')).toContain('occupied');
@@ -323,26 +303,22 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const button = screen.getByRole('button', {
 			name: /16/i,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Welcome');
 		const getTicketButton = await screen.findByRole('button', {
 			name: /^Get Ticket$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(getTicketButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Welcome'));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('occupied'));
 
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Ticket Payment Notice');
 		const payTicketButton = await screen.findByRole('button', {
 			name: /^Pay Ticket$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(payTicketButton));
 		server.use(
 			rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
@@ -360,7 +336,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const paymentSuccessfulConfirmButton = await screen.findByRole('button', {
 			name: /^Confirm$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(paymentSuccessfulConfirmButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Payment Successful'));
 
@@ -368,21 +343,18 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const stayButton = await screen.findByRole('button', {
 			name: /^Stay$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(stayButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Gate Checkout'));
 		expect(button.getAttribute('class')?.split(' ')).toContain('occupied');
 
 		expect(screen.getByTestId('free-spaces-display-board').textContent).toBe('53');
 
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Gate Checkout');
 		const leaveButton = await screen.findByRole('button', {
 			name: /^Leave$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(leaveButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Gate Checkout'));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('free'), { timeout: 2000 });
@@ -404,26 +376,22 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 			name: /16/i,
 		});
 		await (async () => {
-			// eslint-disable-next-line testing-library/no-unnecessary-act
 			await act(async () => await userEvent.click(button));
 
 			await screen.findByText('Welcome');
 			const getTicketButton = await screen.findByRole('button', {
 				name: /^Get Ticket$/,
 			});
-			// eslint-disable-next-line testing-library/no-unnecessary-act
 			await act(async () => await userEvent.click(getTicketButton));
 			await waitForElementToBeRemoved(() => screen.queryByText('Welcome'));
 			await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('occupied'));
 
-			// eslint-disable-next-line testing-library/no-unnecessary-act
 			await act(async () => await userEvent.click(button));
 
 			await screen.findByText('Ticket Payment Notice');
 			const payTicketButton = await screen.findByRole('button', {
 				name: /^Pay Ticket$/,
 			});
-			// eslint-disable-next-line testing-library/no-unnecessary-act
 			await act(async () => await userEvent.click(payTicketButton));
 			server.use(
 				rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
@@ -441,7 +409,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 			const paymentSuccessfulConfirmButton = await screen.findByRole('button', {
 				name: /^Confirm$/,
 			});
-			// eslint-disable-next-line testing-library/no-unnecessary-act
 			await act(async () => await userEvent.click(paymentSuccessfulConfirmButton));
 			await waitForElementToBeRemoved(() => screen.queryByText('Payment Successful'));
 
@@ -449,7 +416,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 			const leaveButton = await screen.findByRole('button', {
 				name: /^Leave$/,
 			});
-			// eslint-disable-next-line testing-library/no-unnecessary-act
 			await act(async () => await userEvent.click(leaveButton));
 			await waitForElementToBeRemoved(() => screen.queryByText('Gate Checkout'));
 			await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('free'), { timeout: 2000 });
@@ -471,26 +437,22 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 			})
 		);
 		await (async () => {
-			// eslint-disable-next-line testing-library/no-unnecessary-act
 			await act(async () => await userEvent.click(button));
 
 			await screen.findByText('Welcome');
 			const getTicketButton = await screen.findByRole('button', {
 				name: /^Get Ticket$/,
 			});
-			// eslint-disable-next-line testing-library/no-unnecessary-act
 			await act(async () => await userEvent.click(getTicketButton));
 			await waitForElementToBeRemoved(() => screen.queryByText('Welcome'));
 			await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('occupied'));
 
-			// eslint-disable-next-line testing-library/no-unnecessary-act
 			await act(async () => await userEvent.click(button));
 
 			await screen.findByText('Ticket Payment Notice');
 			const payTicketButton = await screen.findByRole('button', {
 				name: /^Pay Ticket$/,
 			});
-			// eslint-disable-next-line testing-library/no-unnecessary-act
 			await act(async () => await userEvent.click(payTicketButton));
 			server.use(
 				rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
@@ -508,7 +470,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 			const paymentSuccessfulConfirmButton = await screen.findByRole('button', {
 				name: /^Confirm$/,
 			});
-			// eslint-disable-next-line testing-library/no-unnecessary-act
 			await act(async () => await userEvent.click(paymentSuccessfulConfirmButton));
 			await waitForElementToBeRemoved(() => screen.queryByText('Payment Successful'));
 
@@ -516,7 +477,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 			const leaveButton = await screen.findByRole('button', {
 				name: /^Leave$/,
 			});
-			// eslint-disable-next-line testing-library/no-unnecessary-act
 			await act(async () => await userEvent.click(leaveButton));
 			await waitForElementToBeRemoved(() => screen.queryByText('Gate Checkout'));
 			await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('free'), { timeout: 2000 });
@@ -540,19 +500,16 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const button = screen.getByRole('button', {
 			name: /16/i,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Welcome');
 		const getTicketButton = await screen.findByRole('button', {
 			name: /^Get Ticket$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(getTicketButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Welcome'));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('occupied'));
 
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Ticket Payment Notice');
@@ -569,26 +526,22 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const button = screen.getByRole('button', {
 			name: /16/i,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Welcome');
 		const getTicketButton = await screen.findByRole('button', {
 			name: /^Get Ticket$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(getTicketButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Welcome'));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('occupied'));
 
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Ticket Payment Notice');
 		const payTicketButton = await screen.findByRole('button', {
 			name: /^Pay Ticket$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(payTicketButton));
 		server.use(
 			rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
@@ -609,11 +562,11 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 							'Paid: 2€',
 							'Payment date: Dienstag, 10. März 2020 um 04:00:00',
 							'Payment method: CASH',
-						]
+						],
 					}),
 					ctx.delay(10)
 				);
-			}),
+			})
 		);
 		await waitForElementToBeRemoved(() => screen.queryByText('Ticket Payment Notice'));
 
@@ -634,7 +587,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space afte
 		const button = screen.getByRole('button', {
 			name: /16/i,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Welcome');
@@ -655,12 +607,10 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space afte
 				);
 			})
 		);
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(getTicketButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Welcome'));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('occupied'));
 
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Ticket Payment Notice');
@@ -677,7 +627,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space afte
 		const button = screen.getByRole('button', {
 			name: /16/i,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Welcome');
@@ -698,7 +647,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space afte
 				);
 			})
 		);
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(getTicketButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Welcome'));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('occupied'));
@@ -729,7 +677,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const button = screen.getByRole('button', {
 			name: /16/i,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Welcome');
@@ -750,12 +697,10 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 				);
 			})
 		);
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(getTicketButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Welcome'));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('occupied'));
 
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Ticket Payment Notice');
@@ -773,7 +718,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 				);
 			})
 		);
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(payTicketButton));
 		server.use(
 			rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
@@ -798,7 +742,7 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 					}),
 					ctx.delay(10)
 				);
-			}),
+			})
 		);
 		await waitForElementToBeRemoved(() => screen.queryByText('Ticket Payment Notice'));
 
@@ -819,7 +763,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const button = screen.getByRole('button', {
 			name: /16/i,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Welcome');
@@ -840,12 +783,10 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 				);
 			})
 		);
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(getTicketButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Welcome'));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('occupied'));
 
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Ticket Payment Notice');
@@ -863,7 +804,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 				);
 			})
 		);
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(payTicketButton));
 		server.use(
 			rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
@@ -909,7 +849,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const button = screen.getByRole('button', {
 			name: /16/i,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Welcome');
@@ -930,12 +869,10 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 				);
 			})
 		);
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(getTicketButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Welcome'));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('occupied'));
 
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Ticket Payment Notice');
@@ -952,7 +889,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 				);
 			})
 		);
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(payTicketButton));
 		server.use(
 			rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
@@ -970,7 +906,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const paymentSuccessfulConfirmButton = await screen.findByRole('button', {
 			name: /^Confirm$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(paymentSuccessfulConfirmButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Payment Successful'));
 
@@ -978,21 +913,18 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const stayButton = await screen.findByRole('button', {
 			name: /^Stay$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(stayButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Gate Checkout'));
 		expect(button.getAttribute('class')?.split(' ')).toContain('occupied');
 
 		expect(screen.getByTestId('free-spaces-display-board').textContent).toBe('53');
 
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Gate Checkout');
 		const leaveButton = await screen.findByRole('button', {
 			name: /^Leave$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(leaveButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Gate Checkout'));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('free'), { timeout: 2000 });
@@ -1014,7 +946,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const button = screen.getByRole('button', {
 			name: /16/i,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Welcome');
@@ -1035,12 +966,10 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 				);
 			})
 		);
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(getTicketButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Welcome'));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('occupied'));
 
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Ticket Payment Notice');
@@ -1057,7 +986,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 				);
 			})
 		);
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(payTicketButton));
 		server.use(
 			rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
@@ -1075,7 +1003,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const paymentSuccessfulConfirmButton = await screen.findByRole('button', {
 			name: /^Confirm$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(paymentSuccessfulConfirmButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Payment Successful'));
 
@@ -1083,14 +1010,12 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const stayButton = await screen.findByRole('button', {
 			name: /^Stay$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(stayButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Gate Checkout'));
 		expect(button.getAttribute('class')?.split(' ')).toContain('occupied');
 
 		expect(screen.getByTestId('free-spaces-display-board').textContent).toBe('53');
 
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		server.use(
 			rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
 				return res(
@@ -1119,7 +1044,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const payTicketButton1 = await screen.findByRole('button', {
 			name: /^Pay Ticket$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(payTicketButton1));
 		server.use(
 			rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
@@ -1137,7 +1061,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const paymentSuccessfulConfirmButton1 = await screen.findByRole('button', {
 			name: /^Confirm$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(paymentSuccessfulConfirmButton1));
 		await waitForElementToBeRemoved(() => screen.queryByText('Payment Successful'));
 
@@ -1145,7 +1068,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const leaveButton = await screen.findByRole('button', {
 			name: /^Leave$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(leaveButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Gate Checkout'));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('free'), { timeout: 2000 });
@@ -1167,7 +1089,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const button = screen.getByRole('button', {
 			name: /16/i,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Welcome');
@@ -1188,12 +1109,10 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 				);
 			})
 		);
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(getTicketButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Welcome'));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('occupied'));
 
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Ticket Payment Notice');
@@ -1210,7 +1129,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 				);
 			})
 		);
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(payTicketButton));
 		server.use(
 			rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
@@ -1228,7 +1146,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const paymentSuccessfulConfirmButton = await screen.findByRole('button', {
 			name: /^Confirm$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(paymentSuccessfulConfirmButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Payment Successful'));
 
@@ -1236,14 +1153,12 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const stayButton = await screen.findByRole('button', {
 			name: /^Stay$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(stayButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Gate Checkout'));
 		expect(button.getAttribute('class')?.split(' ')).toContain('occupied');
 
 		expect(screen.getByTestId('free-spaces-display-board').textContent).toBe('53');
 
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		server.use(
 			rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
 				return res(
@@ -1272,7 +1187,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const payTicketButton1 = await screen.findByRole('button', {
 			name: /^Pay Ticket$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(payTicketButton1));
 		server.use(
 			rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
@@ -1290,7 +1204,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const paymentSuccessfulConfirmButton1 = await screen.findByRole('button', {
 			name: /^Confirm$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(paymentSuccessfulConfirmButton1));
 		await waitForElementToBeRemoved(() => screen.queryByText('Payment Successful'));
 
@@ -1298,7 +1211,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const leaveButton = await screen.findByRole('button', {
 			name: /^Leave$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(leaveButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Gate Checkout'));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('free'), { timeout: 2000 });
@@ -1320,7 +1232,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const button = screen.getByRole('button', {
 			name: /16/i,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Welcome');
@@ -1341,12 +1252,10 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 				);
 			})
 		);
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(getTicketButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Welcome'));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('occupied'));
 
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Ticket Payment Notice');
@@ -1363,7 +1272,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 				);
 			})
 		);
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(payTicketButton));
 		server.use(
 			rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
@@ -1381,7 +1289,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const paymentSuccessfulConfirmButton = await screen.findByRole('button', {
 			name: /^Confirm$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(paymentSuccessfulConfirmButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Payment Successful'));
 
@@ -1389,14 +1296,12 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const stayButton = await screen.findByRole('button', {
 			name: /^Stay$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(stayButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Gate Checkout'));
 		expect(button.getAttribute('class')?.split(' ')).toContain('occupied');
 
 		expect(screen.getByTestId('free-spaces-display-board').textContent).toBe('53');
 
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		server.use(
 			rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
 				return res(
@@ -1435,7 +1340,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const payTicketButton1 = await screen.findByRole('button', {
 			name: /^Pay Ticket$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(payTicketButton1));
 		server.use(
 			rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
@@ -1453,7 +1357,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const paymentSuccessfulConfirmButton1 = await screen.findByRole('button', {
 			name: /^Confirm$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(paymentSuccessfulConfirmButton1));
 		await waitForElementToBeRemoved(() => screen.queryByText('Payment Successful'));
 
@@ -1461,7 +1364,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const leaveButton = await screen.findByRole('button', {
 			name: /^Leave$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(leaveButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Gate Checkout'));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('free'), { timeout: 2000 });
@@ -1483,7 +1385,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const button = screen.getByRole('button', {
 			name: /16/i,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Welcome');
@@ -1504,12 +1405,10 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 				);
 			})
 		);
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(getTicketButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Welcome'));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('occupied'));
 
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Ticket Payment Notice');
@@ -1526,7 +1425,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 				);
 			})
 		);
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(payTicketButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Ticket Payment Notice'));
 
@@ -1534,7 +1432,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const paymentSuccessfulConfirmButton = await screen.findByRole('button', {
 			name: /^Confirm$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(paymentSuccessfulConfirmButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Payment Successful'));
 
@@ -1542,7 +1439,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const leaveButton = await screen.findByRole('button', {
 			name: /^Leave$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(leaveButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Gate Checkout'));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('occupied'), { timeout: 2000 });
@@ -1554,7 +1450,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const notPayedEnoughConfirmButton = await screen.findByRole('button', {
 			name: /^Confirm$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(notPayedEnoughConfirmButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Not Paid Enough'));
 	},
@@ -1570,7 +1465,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const button = screen.getByRole('button', {
 			name: /16/i,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Welcome');
@@ -1591,12 +1485,10 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 				);
 			})
 		);
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(getTicketButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Welcome'));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('occupied'));
 
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Ticket Payment Notice');
@@ -1613,7 +1505,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 				);
 			})
 		);
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(payTicketButton));
 		server.use(
 			rest.post('http://localhost:3001/get-ticket-state', (req, res, ctx) => {
@@ -1631,7 +1522,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const paymentSuccessfulConfirmButton = await screen.findByRole('button', {
 			name: /^Confirm$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(paymentSuccessfulConfirmButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Payment Successful'));
 
@@ -1639,14 +1529,12 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const stayButton = await screen.findByRole('button', {
 			name: /^Stay$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(stayButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Gate Checkout'));
 		expect(button.getAttribute('class')?.split(' ')).toContain('occupied');
 
 		expect(screen.getByTestId('free-spaces-display-board').textContent).toBe('53');
 
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(button));
 
 		await screen.findByText('Gate Checkout');
@@ -1663,7 +1551,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 				);
 			})
 		);
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(leaveButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Gate Checkout'));
 		await waitFor(() => expect(button.getAttribute('class')?.split(' ')).toContain('occupied'), { timeout: 2000 });
@@ -1675,7 +1562,6 @@ test('Click on parking space (park) -> Get Ticket -> Click on parking space (lea
 		const notPayedEnoughConfirmButton = await screen.findByRole('button', {
 			name: /^Confirm$/,
 		});
-		// eslint-disable-next-line testing-library/no-unnecessary-act
 		await act(async () => await userEvent.click(notPayedEnoughConfirmButton));
 		await waitForElementToBeRemoved(() => screen.queryByText('Not Paid Enough'));
 	},

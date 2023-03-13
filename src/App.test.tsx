@@ -71,8 +71,7 @@ describe('getTicket();', () => {
 				await window.getTicket();
 				throw new Error('There are more tickets issued then parking spaces available in the parking garage.');
 			} catch (error) {
-				// eslint-disable-next-line jest/no-conditional-expect
-				expect(((error || {}) as Error).message).toBe(ErrorCode.FULL_PARKING_GARAGE);
+				expect(((error || {}) as Error).message).toBe(ErrorCode.FULL_PARKING_GARAGE); // eslint-disable-line jest/no-conditional-expect
 			}
 		});
 	}, 120000);
