@@ -34,6 +34,10 @@
 		"test:custom": "react-scripts test",
 		"eject": "react-scripts eject"
 	},
+	"pre-push": [
+		"build",
+		"test:all"
+	],
 	"eslintConfig": {
 		"extends": [
 			"react-app",
@@ -56,6 +60,7 @@
 		"docker-cli-js": "^2.10.0",
 		"jest-environment-jsdom": "^29.4.3",
 		"msw": "^1.1.0",
+		"pre-push": "^0.1.4",
 		"ts-jest": "^29.0.5",
 		"ts-node": "^10.9.1"
 	}
